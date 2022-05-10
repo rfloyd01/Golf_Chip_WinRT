@@ -112,6 +112,7 @@
       <DependentUpon>GolfChipSettings.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
+    <ClInclude Include="GolfChip_Files\GolfChip.h" />
     <ClInclude Include="MainPage.h">
       <DependentUpon>MainPage.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -146,6 +147,7 @@
       <DependentUpon>GolfChipSettings.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
+    <ClCompile Include="GolfChip_Files\GolfChip.cpp" />
     <ClCompile Include="MainPage.cpp">
       <DependentUpon>MainPage.xaml</DependentUpon>
       <SubType>Code</SubType>

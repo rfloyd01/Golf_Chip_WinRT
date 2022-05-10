@@ -15,11 +15,17 @@
     <ClCompile Include="BluetoothLEDeviceDisplay.cpp">
       <Filter>Pages</Filter>
     </ClCompile>
+    <ClCompile Include="GolfChip_Files\GolfChip.cpp">
+      <Filter>GolfChip_Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
     <ClInclude Include="BluetoothLEDeviceDisplay.h">
       <Filter>Pages</Filter>
+    </ClInclude>
+    <ClInclude Include="GolfChip_Files\GolfChip.h">
+      <Filter>GolfChip_Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -54,6 +60,9 @@
     </Filter>
     <Filter Include="Pages">
       <UniqueIdentifier>{403522fa-369a-4399-886f-8f5401a23852}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GolfChip_Files">
+      <UniqueIdentifier>{02a55289-7ea0-4892-bf4e-b0ebea5066c0}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

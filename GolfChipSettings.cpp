@@ -2,6 +2,7 @@
 #include "GolfChipSettings.h"
 #include "GolfChipSettings.g.cpp"
 #include "BluetoothLEDeviceDisplay.h"
+#include "GolfChip_Files/GolfChip.h"
 
 using namespace winrt;
 using namespace Windows::Devices::Bluetooth;
@@ -386,65 +387,63 @@ namespace winrt::Golf_Chip_WinRT::implementation
             GenericAttributeProfile::GattDeviceServicesResult servicesResult = co_await nano33BLE.GetGattServicesAsync(BluetoothCacheMode::Uncached);
 
             //TODO: uncomment below block when ready to connect to device
-            //if (servicesResult.Status() == GenericAttributeProfile::GattCommunicationStatus::Success)
-            //{
-            //    //TODO: I happen to just know the desired service and characteristic, in the future I should have some better
-            //    //way to verify this
-            //    auto desiredServiceUUID = BluetoothUuidHelper::FromShortId(0x180C);
-            //    int serviceLocation = 0;
-            //    for (int i = 0; i < servicesResult.Services().Size(); i++)
-            //    {
-            //        uint32_t s = servicesResult.Services().GetAt(i).Uuid().Data1;
-            //        if (s == desiredServiceUUID.Data1) serviceLocation = i;
-            //    }
+            if (servicesResult.Status() == GenericAttributeProfile::GattCommunicationStatus::Success)
+            {
+                //auto desiredServiceUUID = BluetoothUuidHelper::FromShortId(0x180C);
+                int serviceLocation = 0;
+                for (int i = 0; i < servicesResult.Services().Size(); i++)
+                {
+                    uint32_t s = servicesResult.Services().GetAt(i).Uuid().Data1;
+                    if (s == Constants::GolfChipSensorDataServiceUuid.Data1) serviceLocation = i;
+                }
 
-            //    GenericAttributeProfile::GattDeviceService service = servicesResult.Services().GetAt(serviceLocation);
+                GenericAttributeProfile::GattDeviceService service = servicesResult.Services().GetAt(serviceLocation);
 
-            //    //Grab the characteristics from the GettService
-            //    GenericAttributeProfile::GattCharacteristicsResult characteristicResult = co_await service.GetCharacteristicsAsync();
+                //Grab the characteristics from the GettService
+                GenericAttributeProfile::GattCharacteristicsResult characteristicResult = co_await service.GetCharacteristicsAsync();
 
-            //    uint32_t desiredCharacteristic = 0x00002A58;
-            //    int characteristicLocation = 0, testCharacteristicLocation = 0;
-            //    for (int i = 0; i < characteristicResult.Characteristics().Size(); i++)
-            //    {
-            //        uint32_t c = characteristicResult.Characteristics().GetAt(i).Uuid().Data1;
-            //        if (c == Constants::GolfChipSensorDataCharacteristicUuid) characteristicLocation = i;
-            //        else if (c == Constants::GolfChipSensorTestCharacteristicUuid) testCharacteristicLocation = i;
-            //    }
+                //uint32_t desiredCharacteristic = 0x00002A58;
+                int characteristicLocation = 0, testCharacteristicLocation = 0;
+                for (int i = 0; i < characteristicResult.Characteristics().Size(); i++)
+                {
+                    uint32_t c = characteristicResult.Characteristics().GetAt(i).Uuid().Data1;
+                    if (c == Constants::GolfChipSensorDataCharacteristicUuid) characteristicLocation = i;
+                    else if (c == Constants::GolfChipSensorTestCharacteristicUuid) testCharacteristicLocation = i;
+                }
 
-            //    //Connect to the data characteristic
-            //    if (winrt::Golf_Chip::SampleState::m_golfChip != nullptr)
-            //    {
-            //        if (winrt::Golf_Chip::SampleState::m_golfChip->getBLEDevice() != nullptr)
-            //        {
-            //            //Save the characteristic info in the shared section of the code
-            //            winrt::Golf_Chip::SampleState::m_golfChip->getBLEDevice()->setConnectedCharacteristic(characteristicResult.Characteristics().GetAt(characteristicLocation));
-            //            NotifyUser(L"Succesfully connected to the device! Chatacteristic UUID is " + winrt::to_hstring(winrt::Golf_Chip::SampleState::m_golfChip->getBLEDevice()->getConnectedCharacteristic().Uuid()), NotifyType::StatusMessage);
+                //Connect to the data characteristic
+                //if (winrt::Golf_Chip::SampleState::m_golfChip != nullptr)
+                //{
+                //    if (winrt::Golf_Chip::SampleState::m_golfChip->getBLEDevice() != nullptr)
+                //    {
+                //        //Save the characteristic info in the shared section of the code
+                //        winrt::Golf_Chip::SampleState::m_golfChip->getBLEDevice()->setConnectedCharacteristic(characteristicResult.Characteristics().GetAt(characteristicLocation));
+                //        NotifyUser(L"Succesfully connected to the device! Chatacteristic UUID is " + winrt::to_hstring(winrt::Golf_Chip::SampleState::m_golfChip->getBLEDevice()->getConnectedCharacteristic().Uuid()), NotifyType::StatusMessage);
 
-            //            //We need to configure the characteristic to notify us when it changes (and considering the sensor will be constantly reading data, this is a lot)
-            //            SetupCharacteristicNotification(winrt::Golf_Chip::SampleState::m_golfChip->getBLEDevice()->getConnectedCharacteristic());
+                //        //We need to configure the characteristic to notify us when it changes (and considering the sensor will be constantly reading data, this is a lot)
+                //        SetupCharacteristicNotification(winrt::Golf_Chip::SampleState::m_golfChip->getBLEDevice()->getConnectedCharacteristic());
 
-            //            //Connect to the test characteristic as well
-            //            winrt::Golf_Chip::SampleState::m_golfChip->getBLEDevice()->setTestCharacteristic(characteristicResult.Characteristics().GetAt(testCharacteristicLocation));
+                //        //Connect to the test characteristic as well
+                //        winrt::Golf_Chip::SampleState::m_golfChip->getBLEDevice()->setTestCharacteristic(characteristicResult.Characteristics().GetAt(testCharacteristicLocation));
 
-            //            //After setting the connectionCharacteristic, get sensor data from the Golf Chip to set up the IMU object
-            //            auto read = co_await winrt::Golf_Chip::SampleState::m_golfChip->getBLEDevice()->getTestCharacteristic().ReadValueAsync();
+                //        //After setting the connectionCharacteristic, get sensor data from the Golf Chip to set up the IMU object
+                //        auto read = co_await winrt::Golf_Chip::SampleState::m_golfChip->getBLEDevice()->getTestCharacteristic().ReadValueAsync();
 
-            //            //winrt::Golf_Chip::SampleState::m_golfChip->getBLEDevice()->setupIMUSensor("LSM9DS1_ACC", read.Value().data());
+                //        //winrt::Golf_Chip::SampleState::m_golfChip->getBLEDevice()->setupIMUSensor("LSM9DS1_ACC", read.Value().data());
 
-            //            //After onnecting to the device, set the display to "settings mode" and stop the device watcher from enumerating.
-            //            DisplaySettingsMode();
-            //            StopBleDeviceWatcher();
-            //        }
-            //        else NotifyUser(L"Succesfully connected to the device! But the BLEDevice was nullptr...", NotifyType::ErrorMessage);
-            //    }
-            //    else NotifyUser(L"Succesfully connected to the device! But the m_golfChip was nullptr...", NotifyType::ErrorMessage);
+                //        //After onnecting to the device, set the display to "settings mode" and stop the device watcher from enumerating.
+                //        DisplaySettingsMode();
+                //        StopBleDeviceWatcher();
+                //    }
+                //    else NotifyUser(L"Succesfully connected to the device! But the BLEDevice was nullptr...", NotifyType::ErrorMessage);
+                //}
+                //else NotifyUser(L"Succesfully connected to the device! But the m_golfChip was nullptr...", NotifyType::ErrorMessage);
 
-            //}
-            //else
-            //{
-            //    NotifyUser(L"The connection to the device was refused", NotifyType::StatusMessage);
-            //}
+            }
+            else
+            {
+                NotifyUser(L"The connection to the device was refused", NotifyType::StatusMessage);
+            }
         }
         else
             NotifyUser(L"Couldn't connect to the BLE device with address " + winrt::to_hstring(formattedAddress), NotifyType::ErrorMessage);
