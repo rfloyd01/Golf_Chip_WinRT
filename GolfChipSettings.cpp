@@ -282,173 +282,173 @@ namespace winrt::Golf_Chip_WinRT::implementation
 
     fire_and_forget GolfChipSettings::DeviceWatcher_Updated(Windows::Devices::Enumeration::DeviceWatcher sender, Windows::Devices::Enumeration::DeviceInformationUpdate deviceInfoUpdate)
     {
-        ////We must update the collection on the UI thread because the collection is databound to a UI element.
+        //We must update the collection on the UI thread because the collection is databound to a UI element.
         auto lifetime = get_strong();
         co_await resume_foreground(Dispatcher());
 
-        ////Protect against race condition if the task runs after the app stopped the deviceWatcher.
-        //if (sender == deviceWatcher)
-        //{
-        //    Golf_Chip_WinRT::BluetoothLEDeviceDisplay bleDeviceDisplay = std::get<0>(FindBluetoothLeDeviceDisplay(deviceInfoUpdate.Id()));
-        //    if (bleDeviceDisplay != nullptr)
-        //    {
-        //        //Device is already being displayed - update UX.
-        //        bleDeviceDisplay.Update(deviceInfoUpdate);
-        //        co_return;
-        //    }
+        //Protect against race condition if the task runs after the app stopped the deviceWatcher.
+        if (sender == deviceWatcher)
+        {
+            Golf_Chip_WinRT::BluetoothLEDeviceDisplay bleDeviceDisplay = std::get<0>(FindBluetoothLeDeviceDisplay(deviceInfoUpdate.Id()));
+            if (bleDeviceDisplay != nullptr)
+            {
+                //Device is already being displayed - update UX.
+                bleDeviceDisplay.Update(deviceInfoUpdate);
+                co_return;
+            }
 
-        //    auto deviceInfo = FindUnknownDevices(deviceInfoUpdate.Id());
-        //    if (deviceInfo != UnknownDevices.end())
-        //    {
-        //        deviceInfo->Update(deviceInfoUpdate);
-        //        //If device has been updated with a friendly name it's no longer unknown.
-        //        if (!deviceInfo->Name().empty())
-        //        {
-        //            m_knownDevices.Append(make<BluetoothLEDeviceDisplay>(*deviceInfo));
-        //            UnknownDevices.erase(deviceInfo);
-        //            OutputDebugStringW((L"Added " + deviceInfoUpdate.Id() + L"\n").c_str());
-        //        }
-        //    }
-        //}
+            auto deviceInfo = FindUnknownDevices(deviceInfoUpdate.Id());
+            if (deviceInfo != UnknownDevices.end())
+            {
+                deviceInfo->Update(deviceInfoUpdate);
+                //If device has been updated with a friendly name it's no longer unknown.
+                if (!deviceInfo->Name().empty())
+                {
+                    m_knownDevices.Append(make<BluetoothLEDeviceDisplay>(*deviceInfo));
+                    UnknownDevices.erase(deviceInfo);
+                    OutputDebugStringW((L"Added " + deviceInfoUpdate.Id() + L"\n").c_str());
+                }
+            }
+        }
     }
 
     fire_and_forget GolfChipSettings::DeviceWatcher_Removed(Windows::Devices::Enumeration::DeviceWatcher sender, Windows::Devices::Enumeration::DeviceInformationUpdate deviceInfoUpdate)
     {
-        //// We must update the collection on the UI thread because the collection is databound to a UI element.
+        // We must update the collection on the UI thread because the collection is databound to a UI element.
         auto lifetime = get_strong();
         co_await resume_foreground(Dispatcher());
 
-        //// Protect against race condition if the task runs after the app stopped the deviceWatcher.
-        //if (sender == deviceWatcher)
-        //{
-        //    //Find the corresponding DeviceInformation in the collection and remove it.
-        //    auto [bleDeviceDisplay, index] = FindBluetoothLeDeviceDisplay(deviceInfoUpdate.Id());
-        //    if (bleDeviceDisplay != nullptr)
-        //    {
-        //        m_knownDevices.RemoveAt(index);
-        //        OutputDebugStringW((L"Removed " + deviceInfoUpdate.Id() + L" " + bleDeviceDisplay.Name() + L"\n").c_str());
-        //    }
+        // Protect against race condition if the task runs after the app stopped the deviceWatcher.
+        if (sender == deviceWatcher)
+        {
+            //Find the corresponding DeviceInformation in the collection and remove it.
+            auto [bleDeviceDisplay, index] = FindBluetoothLeDeviceDisplay(deviceInfoUpdate.Id());
+            if (bleDeviceDisplay != nullptr)
+            {
+                m_knownDevices.RemoveAt(index);
+                OutputDebugStringW((L"Removed " + deviceInfoUpdate.Id() + L" " + bleDeviceDisplay.Name() + L"\n").c_str());
+            }
 
-        //    auto deviceInfo = FindUnknownDevices(deviceInfoUpdate.Id());
-        //    if (deviceInfo != UnknownDevices.end())
-        //    {
-        //        UnknownDevices.erase(deviceInfo);
-        //    }
-        //}
+            auto deviceInfo = FindUnknownDevices(deviceInfoUpdate.Id());
+            if (deviceInfo != UnknownDevices.end())
+            {
+                UnknownDevices.erase(deviceInfo);
+            }
+        }
     }
 
     fire_and_forget GolfChipSettings::DeviceWatcher_EnumerationCompleted(Windows::Devices::Enumeration::DeviceWatcher sender, Windows::Foundation::IInspectable const&)
     {
-        //// Access this->deviceWatcher on the UI thread to avoid race conditions.
+        // Access this->deviceWatcher on the UI thread to avoid race conditions.
         auto lifetime = get_strong();
         co_await resume_foreground(Dispatcher());
 
-        //// Protect against race condition if the task runs after the app stopped the deviceWatcher.
-        //if (sender == deviceWatcher)
-        //{
-        //    /*rootPage.NotifyUser(to_hstring(m_knownDevices.Size()) + L" devices found. Enumeration completed.",
-        //        NotifyType::StatusMessage);*/
-        //}
+        // Protect against race condition if the task runs after the app stopped the deviceWatcher.
+        if (sender == deviceWatcher)
+        {
+            NotifyUser(to_hstring(m_knownDevices.Size()) + L" devices found. Enumeration completed.",
+                NotifyType::StatusMessage);
+        }
     }
 
     fire_and_forget GolfChipSettings::DeviceWatcher_Stopped(Windows::Devices::Enumeration::DeviceWatcher sender, Windows::Foundation::IInspectable const&)
     {
-        //// Access this->deviceWatcher on the UI thread to avoid race conditions.
+        // Access this->deviceWatcher on the UI thread to avoid race conditions.
         auto lifetime = get_strong();
         co_await resume_foreground(Dispatcher());
 
-        //// Protect against race condition if the task runs after the app stopped the deviceWatcher.
-        //if (sender == deviceWatcher)
-        //{
-        //    /*rootPage.NotifyUser(L"No longer watching for devices.",
-        //        sender.Status() == DeviceWatcherStatus::Aborted ? NotifyType::ErrorMessage : NotifyType::StatusMessage);*/
-        //}
+        // Protect against race condition if the task runs after the app stopped the deviceWatcher.
+        if (sender == deviceWatcher)
+        {
+            NotifyUser(L"No longer watching for devices.",
+                sender.Status() == DeviceWatcherStatus::Aborted ? NotifyType::ErrorMessage : NotifyType::StatusMessage);
+        }
     }
 #pragma endregion
 
 #pragma region Device Connection
-    void GolfChipSettings::ConnectButton_Click()
+    fire_and_forget GolfChipSettings::ConnectButton_Click()
     {
-        //auto bleDeviceDisplay = ResultsListView().SelectedItem().as<Golf_Chip_WinRT::BluetoothLEDeviceDisplay>();
+        auto bleDeviceDisplay = ResultsListView().SelectedItem().as<Golf_Chip_WinRT::BluetoothLEDeviceDisplay>();
 
-        ////TODO: There's a method in the BluetoothLEDeviceDisplay class called Address() that should just return the address,
-        ////but for somereason the function can't be seen from here? It's a public function so I'm not sure about the reason for this.
-        //hstring deviceAddress = unbox_value<hstring>(bleDeviceDisplay.Properties().TryLookup(L"System.Devices.Aep.DeviceAddress"));
+        //TODO: There's a method in the BluetoothLEDeviceDisplay class called Address() that should just return the address,
+        //but for somereason the function can't be seen from here? It's a public function so I'm not sure about the reason for this.
+        hstring deviceAddress = unbox_value<hstring>(bleDeviceDisplay.Properties().TryLookup(L"System.Devices.Aep.DeviceAddress"));
 
-        ////The address for the BLE device needs to be properly converted from a string into a uint64_t
-        //uint64_t formattedAddress = getBLEAddress(deviceAddress);
+        //The address for the BLE device needs to be properly converted from a string into a uint64_t
+        uint64_t formattedAddress = getBLEAddress(deviceAddress);
 
-        //BluetoothLEDevice nano33BLE = co_await BluetoothLEDevice::FromBluetoothAddressAsync(formattedAddress);
+        BluetoothLEDevice nano33BLE = co_await BluetoothLEDevice::FromBluetoothAddressAsync(formattedAddress);
 
-        //if (nano33BLE != nullptr)
-        //{
-        //    //The device has been found, to create the physical connection we subscribe to the device's GattService
-        //    GenericAttributeProfile::GattDeviceServicesResult servicesResult = co_await nano33BLE.GetGattServicesAsync(BluetoothCacheMode::Uncached);
+        if (nano33BLE != nullptr)
+        {
+            //The device has been found, to create the physical connection we subscribe to the device's GattService
+            GenericAttributeProfile::GattDeviceServicesResult servicesResult = co_await nano33BLE.GetGattServicesAsync(BluetoothCacheMode::Uncached);
 
-        //    //TODO: uncomment below block when ready to connect to device
-        //    //if (servicesResult.Status() == GenericAttributeProfile::GattCommunicationStatus::Success)
-        //    //{
-        //    //    //TODO: I happen to just know the desired service and characteristic, in the future I should have some better
-        //    //    //way to verify this
-        //    //    auto desiredServiceUUID = BluetoothUuidHelper::FromShortId(0x180C);
-        //    //    int serviceLocation = 0;
-        //    //    for (int i = 0; i < servicesResult.Services().Size(); i++)
-        //    //    {
-        //    //        uint32_t s = servicesResult.Services().GetAt(i).Uuid().Data1;
-        //    //        if (s == desiredServiceUUID.Data1) serviceLocation = i;
-        //    //    }
+            //TODO: uncomment below block when ready to connect to device
+            //if (servicesResult.Status() == GenericAttributeProfile::GattCommunicationStatus::Success)
+            //{
+            //    //TODO: I happen to just know the desired service and characteristic, in the future I should have some better
+            //    //way to verify this
+            //    auto desiredServiceUUID = BluetoothUuidHelper::FromShortId(0x180C);
+            //    int serviceLocation = 0;
+            //    for (int i = 0; i < servicesResult.Services().Size(); i++)
+            //    {
+            //        uint32_t s = servicesResult.Services().GetAt(i).Uuid().Data1;
+            //        if (s == desiredServiceUUID.Data1) serviceLocation = i;
+            //    }
 
-        //    //    GenericAttributeProfile::GattDeviceService service = servicesResult.Services().GetAt(serviceLocation);
+            //    GenericAttributeProfile::GattDeviceService service = servicesResult.Services().GetAt(serviceLocation);
 
-        //    //    //Grab the characteristics from the GettService
-        //    //    GenericAttributeProfile::GattCharacteristicsResult characteristicResult = co_await service.GetCharacteristicsAsync();
+            //    //Grab the characteristics from the GettService
+            //    GenericAttributeProfile::GattCharacteristicsResult characteristicResult = co_await service.GetCharacteristicsAsync();
 
-        //    //    uint32_t desiredCharacteristic = 0x00002A58;
-        //    //    int characteristicLocation = 0, testCharacteristicLocation = 0;
-        //    //    for (int i = 0; i < characteristicResult.Characteristics().Size(); i++)
-        //    //    {
-        //    //        uint32_t c = characteristicResult.Characteristics().GetAt(i).Uuid().Data1;
-        //    //        if (c == Constants::GolfChipSensorDataCharacteristicUuid) characteristicLocation = i;
-        //    //        else if (c == Constants::GolfChipSensorTestCharacteristicUuid) testCharacteristicLocation = i;
-        //    //    }
+            //    uint32_t desiredCharacteristic = 0x00002A58;
+            //    int characteristicLocation = 0, testCharacteristicLocation = 0;
+            //    for (int i = 0; i < characteristicResult.Characteristics().Size(); i++)
+            //    {
+            //        uint32_t c = characteristicResult.Characteristics().GetAt(i).Uuid().Data1;
+            //        if (c == Constants::GolfChipSensorDataCharacteristicUuid) characteristicLocation = i;
+            //        else if (c == Constants::GolfChipSensorTestCharacteristicUuid) testCharacteristicLocation = i;
+            //    }
 
-        //    //    //Connect to the data characteristic
-        //    //    if (winrt::Golf_Chip::SampleState::m_golfChip != nullptr)
-        //    //    {
-        //    //        if (winrt::Golf_Chip::SampleState::m_golfChip->getBLEDevice() != nullptr)
-        //    //        {
-        //    //            //Save the characteristic info in the shared section of the code
-        //    //            winrt::Golf_Chip::SampleState::m_golfChip->getBLEDevice()->setConnectedCharacteristic(characteristicResult.Characteristics().GetAt(characteristicLocation));
-        //    //            NotifyUser(L"Succesfully connected to the device! Chatacteristic UUID is " + winrt::to_hstring(winrt::Golf_Chip::SampleState::m_golfChip->getBLEDevice()->getConnectedCharacteristic().Uuid()), NotifyType::StatusMessage);
+            //    //Connect to the data characteristic
+            //    if (winrt::Golf_Chip::SampleState::m_golfChip != nullptr)
+            //    {
+            //        if (winrt::Golf_Chip::SampleState::m_golfChip->getBLEDevice() != nullptr)
+            //        {
+            //            //Save the characteristic info in the shared section of the code
+            //            winrt::Golf_Chip::SampleState::m_golfChip->getBLEDevice()->setConnectedCharacteristic(characteristicResult.Characteristics().GetAt(characteristicLocation));
+            //            NotifyUser(L"Succesfully connected to the device! Chatacteristic UUID is " + winrt::to_hstring(winrt::Golf_Chip::SampleState::m_golfChip->getBLEDevice()->getConnectedCharacteristic().Uuid()), NotifyType::StatusMessage);
 
-        //    //            //We need to configure the characteristic to notify us when it changes (and considering the sensor will be constantly reading data, this is a lot)
-        //    //            SetupCharacteristicNotification(winrt::Golf_Chip::SampleState::m_golfChip->getBLEDevice()->getConnectedCharacteristic());
+            //            //We need to configure the characteristic to notify us when it changes (and considering the sensor will be constantly reading data, this is a lot)
+            //            SetupCharacteristicNotification(winrt::Golf_Chip::SampleState::m_golfChip->getBLEDevice()->getConnectedCharacteristic());
 
-        //    //            //Connect to the test characteristic as well
-        //    //            winrt::Golf_Chip::SampleState::m_golfChip->getBLEDevice()->setTestCharacteristic(characteristicResult.Characteristics().GetAt(testCharacteristicLocation));
+            //            //Connect to the test characteristic as well
+            //            winrt::Golf_Chip::SampleState::m_golfChip->getBLEDevice()->setTestCharacteristic(characteristicResult.Characteristics().GetAt(testCharacteristicLocation));
 
-        //    //            //After setting the connectionCharacteristic, get sensor data from the Golf Chip to set up the IMU object
-        //    //            auto read = co_await winrt::Golf_Chip::SampleState::m_golfChip->getBLEDevice()->getTestCharacteristic().ReadValueAsync();
+            //            //After setting the connectionCharacteristic, get sensor data from the Golf Chip to set up the IMU object
+            //            auto read = co_await winrt::Golf_Chip::SampleState::m_golfChip->getBLEDevice()->getTestCharacteristic().ReadValueAsync();
 
-        //    //            //winrt::Golf_Chip::SampleState::m_golfChip->getBLEDevice()->setupIMUSensor("LSM9DS1_ACC", read.Value().data());
+            //            //winrt::Golf_Chip::SampleState::m_golfChip->getBLEDevice()->setupIMUSensor("LSM9DS1_ACC", read.Value().data());
 
-        //    //            //After onnecting to the device, set the display to "settings mode" and stop the device watcher from enumerating.
-        //    //            DisplaySettingsMode();
-        //    //            StopBleDeviceWatcher();
-        //    //        }
-        //    //        else NotifyUser(L"Succesfully connected to the device! But the BLEDevice was nullptr...", NotifyType::ErrorMessage);
-        //    //    }
-        //    //    else NotifyUser(L"Succesfully connected to the device! But the m_golfChip was nullptr...", NotifyType::ErrorMessage);
+            //            //After onnecting to the device, set the display to "settings mode" and stop the device watcher from enumerating.
+            //            DisplaySettingsMode();
+            //            StopBleDeviceWatcher();
+            //        }
+            //        else NotifyUser(L"Succesfully connected to the device! But the BLEDevice was nullptr...", NotifyType::ErrorMessage);
+            //    }
+            //    else NotifyUser(L"Succesfully connected to the device! But the m_golfChip was nullptr...", NotifyType::ErrorMessage);
 
-        //    //}
-        //    //else
-        //    //{
-        //    //    NotifyUser(L"The connection to the device was refused", NotifyType::StatusMessage);
-        //    //}
-        //}
-        //else
-        //    NotifyUser(L"Couldn't connect to the BLE device with address " + winrt::to_hstring(formattedAddress), NotifyType::ErrorMessage);
-        ////The Arduino Nano BLE 33 doesn't have the capability to pair, so we attempt to connect to it directly
+            //}
+            //else
+            //{
+            //    NotifyUser(L"The connection to the device was refused", NotifyType::StatusMessage);
+            //}
+        }
+        else
+            NotifyUser(L"Couldn't connect to the BLE device with address " + winrt::to_hstring(formattedAddress), NotifyType::ErrorMessage);
+        //The Arduino Nano BLE 33 doesn't have the capability to pair, so we attempt to connect to it directly
 
     }
 #pragma endregion
@@ -457,21 +457,20 @@ namespace winrt::Golf_Chip_WinRT::implementation
     {
         //The addresses for the found BLE devices are in the form ##:##:##:##:##:##. To convert this style into a useable
         //64-bit number the following formula is used
-        //uint64_t formattedAddress = 0;
+        uint64_t formattedAddress = 0;
 
-        ////TODO: I'm not sure if the letters in the address will always be lowercase or not, may need to look into this
-        ////in the future
-        //for (wchar_t c : unformattedAddress)
-        //{
-        //    if (c == ':') continue;
-        //    formattedAddress <<= 4;
+        //TODO: I'm not sure if the letters in the address will always be lowercase or not, may need to look into this
+        //in the future
+        for (wchar_t c : unformattedAddress)
+        {
+            if (c == ':') continue;
+            formattedAddress <<= 4;
 
-        //    if (c >= 'a') formattedAddress += (c - 'a' + 10);
-        //    else formattedAddress += (c - '0');
-        //}
+            if (c >= 'a') formattedAddress += (c - 'a' + 10);
+            else formattedAddress += (c - '0');
+        }
 
-        //return formattedAddress;
-        return 0;
+        return formattedAddress;
     }
 
 }

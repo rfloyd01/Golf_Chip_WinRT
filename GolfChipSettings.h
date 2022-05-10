@@ -20,7 +20,7 @@ namespace winrt::Golf_Chip_WinRT::implementation
         }
 
         void EnumerateButton_Click();
-        void ConnectButton_Click();
+        fire_and_forget ConnectButton_Click();
         void DisconnectButton_Click();
         bool Not(bool value) { return !value; }
 
