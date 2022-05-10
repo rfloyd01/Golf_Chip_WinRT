@@ -9,18 +9,24 @@ using namespace Windows::UI::Xaml;
 
 namespace winrt::Golf_Chip_WinRT::implementation
 {
-    int32_t MainPage::MyProperty()
+    void MainPage::deviceSettingsMode_Click(Windows::Foundation::IInspectable const& /*sender*/, Windows::UI::Xaml::RoutedEventArgs const& /*args*/ )
     {
-        throw hresult_not_implemented();
+        deviceSettingsMode().Content(box_value(L"Clicked"));
     }
-
-    void MainPage::MyProperty(int32_t /* value */)
+    void MainPage::freeSwingMode_Click(Windows::Foundation::IInspectable const& /*sender*/, Windows::UI::Xaml::RoutedEventArgs const& /*args*/)
     {
-        throw hresult_not_implemented();
+        freeSwingMode().Content(box_value(L"Clicked"));
     }
-
-    void MainPage::ClickHandler(IInspectable const&, RoutedEventArgs const&)
+    void MainPage::swingAnalysisMode_Click(Windows::Foundation::IInspectable const& /*sender*/, Windows::UI::Xaml::RoutedEventArgs const& /*args*/)
     {
-        Button().Content(box_value(L"Clicked"));
+        swingAnalysisMode().Content(box_value(L"Clicked"));
+    }
+    void MainPage::trainingMode_Click(Windows::Foundation::IInspectable const& /*sender*/, Windows::UI::Xaml::RoutedEventArgs const& /*args*/)
+    {
+        trainingMode().Content(box_value(L"Clicked"));
+    }
+    void MainPage::calibrationMode_Click(Windows::Foundation::IInspectable const& /*sender*/, Windows::UI::Xaml::RoutedEventArgs const& /*args*/)
+    {
+        calibrationMode().Content(box_value(L"Clicked"));
     }
 }

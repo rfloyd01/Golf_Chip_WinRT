@@ -7,7 +7,17 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-        <Button x:Name="Button" Click="ClickHandler">Click Me</Button>
+    <StackPanel Background="{ThemeResource AppBarItemForegroundThemeBrush}">
+        <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
+            <TextBlock FontSize="48" Margin="0,20,0,0" HorizontalAlignment="Center" Foreground="White">Golf Chip v2.0</TextBlock>
+            <TextBlock Foreground="White" FontSize="22">(Select one of the below options)</TextBlock>
+        </StackPanel>
+        <RelativePanel>
+            <Button x:Name="deviceSettingsMode" Click="deviceSettingsMode_Click" Foreground="#FF34655F" RelativePanel.AlignHorizontalCenterWithPanel="True" Margin="0,75,0,0" FontSize="24" Background="#33000000">Bluetooth Device Settings</Button>
+            <Button x:Name="freeSwingMode" Click="freeSwingMode_Click" Foreground="#FFA1EA7F" FontSize="24" RelativePanel.Below="deviceSettingsMode" RelativePanel.AlignHorizontalCenterWithPanel="True">Free Swing Mode</Button>
+            <Button x:Name="swingAnalysisMode" Click="swingAnalysisMode_Click" Foreground="#FFAE7424" FontSize="24" RelativePanel.Below="freeSwingMode" RelativePanel.AlignHorizontalCenterWithPanel="True">Swing Analysis Mode</Button>
+            <Button x:Name="trainingMode" Click="trainingMode_Click" Foreground="#FF9C89D3" FontSize="24" RelativePanel.Below="swingAnalysisMode" RelativePanel.AlignHorizontalCenterWithPanel="True">Training Mode</Button>
+            <Button x:Name="calibrationMode" Click="calibrationMode_Click" Foreground="#FF989393" FontSize="24" RelativePanel.Below="trainingMode" RelativePanel.AlignHorizontalCenterWithPanel="True">Calibration Mode</Button>
+        </RelativePanel>
     </StackPanel>
 </Page>
