@@ -2,54 +2,62 @@
 #include "BluetoothLEDeviceDisplay.h"
 #include "BluetoothLEDeviceDisplay.g.cpp"
 
+using namespace winrt;
+using namespace Windows::Foundation;
+using namespace Windows::Devices::Enumeration;
+using namespace Windows::UI::Xaml::Data;
+using namespace Windows::UI::Xaml::Media::Imaging;
+
 namespace winrt::Golf_Chip_WinRT::implementation
 {
-    winrt::Windows::Devices::Enumeration::DeviceInformation BluetoothLEDeviceDisplay::DeviceInformation()
+    BluetoothLEDeviceDisplay::BluetoothLEDeviceDisplay(Windows::Devices::Enumeration::DeviceInformation const& deviceInfoIn) : m_deviceInformation(deviceInfoIn)
     {
-        throw hresult_not_implemented();
+        UpdateGlyphBitmapImage();
     }
-    hstring BluetoothLEDeviceDisplay::Id()
+
+    bool BluetoothLEDeviceDisplay::LookupBooleanProperty(param::hstring const& property)
     {
-        throw hresult_not_implemented();
+        auto value = m_deviceInformation.Properties().TryLookup(property);
+        return value && unbox_value<bool>(value);
     }
-    hstring BluetoothLEDeviceDisplay::Name()
+
+    void BluetoothLEDeviceDisplay::Update(DeviceInformationUpdate const& deviceInfoUpdate)
     {
-        throw hresult_not_implemented();
+        m_deviceInformation.Update(deviceInfoUpdate);
+
+        OnPropertyChanged(L"Id");
+        OnPropertyChanged(L"Name");
+        OnPropertyChanged(L"DeviceInformation");
+        OnPropertyChanged(L"IsPaired");
+        OnPropertyChanged(L"IsConnected");
+        OnPropertyChanged(L"Properties");
+        OnPropertyChanged(L"IsConnectable");
+
+        UpdateGlyphBitmapImage();
     }
-    bool BluetoothLEDeviceDisplay::IsPaired()
+
+    event_token BluetoothLEDeviceDisplay::PropertyChanged(PropertyChangedEventHandler const& handler)
     {
-        throw hresult_not_implemented();
+        return m_propertyChanged.add(handler);
     }
-    bool BluetoothLEDeviceDisplay::IsConnected()
+
+    void BluetoothLEDeviceDisplay::PropertyChanged(event_token const& token) noexcept
     {
-        throw hresult_not_implemented();
+        m_propertyChanged.remove(token);
     }
-    bool BluetoothLEDeviceDisplay::IsConnectable()
+
+    void BluetoothLEDeviceDisplay::OnPropertyChanged(param::hstring const& property)
     {
-        throw hresult_not_implemented();
+        m_propertyChanged(*this, PropertyChangedEventArgs(property));
     }
-    hstring BluetoothLEDeviceDisplay::Address()
+
+    fire_and_forget BluetoothLEDeviceDisplay::UpdateGlyphBitmapImage()
     {
-        throw hresult_not_implemented();
-    }
-    winrt::Windows::Foundation::Collections::IMapView<hstring, winrt::Windows::Foundation::IInspectable> BluetoothLEDeviceDisplay::Properties()
-    {
-        throw hresult_not_implemented();
-    }
-    winrt::Windows::UI::Xaml::Media::Imaging::BitmapImage BluetoothLEDeviceDisplay::GlyphBitmapImage()
-    {
-        throw hresult_not_implemented();
-    }
-    void BluetoothLEDeviceDisplay::Update(winrt::Windows::Devices::Enumeration::DeviceInformationUpdate const& deviceInfoUpdate)
-    {
-        throw hresult_not_implemented();
-    }
-    winrt::event_token BluetoothLEDeviceDisplay::PropertyChanged(winrt::Windows::UI::Xaml::Data::PropertyChangedEventHandler const& handler)
-    {
-        throw hresult_not_implemented();
-    }
-    void BluetoothLEDeviceDisplay::PropertyChanged(winrt::event_token const& token) noexcept
-    {
-        throw hresult_not_implemented();
+        auto lifetime = get_strong();
+        DeviceThumbnail deviceThumbnail = co_await m_deviceInformation.GetGlyphThumbnailAsync();
+        BitmapImage glyphBitmapImage;
+        co_await glyphBitmapImage.SetSourceAsync(deviceThumbnail);
+        m_glyphBitmapImage = glyphBitmapImage;
+        OnPropertyChanged(L"GlyphBitmapImage");
     }
 }

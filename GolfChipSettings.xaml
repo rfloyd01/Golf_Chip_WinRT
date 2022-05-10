@@ -7,6 +7,181 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-    </StackPanel>
+    <Page.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Styles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            <DataTemplate x:Key="ResultsListViewTemplate" x:DataType="local:BluetoothLEDeviceDisplay">
+                <Grid Margin="5">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*" MinWidth="100"/>
+                    </Grid.ColumnDefinitions>
+                    <Image Source="{x:Bind GlyphBitmapImage, Mode=OneWay}" Stretch="UniformToFill" Grid.Column="0" Height="40" Width="40" Margin="5" VerticalAlignment="Top"/>
+                    <StackPanel Grid.Column="1" Margin="5">
+                        <TextBlock Style="{StaticResource ListItemTextStyle}" TextWrapping="WrapWholeWords">
+                        Name: <Run Text="{x:Bind Name, Mode=OneWay}" FontWeight="Bold"/>
+                        </TextBlock>
+                        <TextBlock>
+                        Address: <Run Text="{x:Bind Address, Mode=OneWay}"/>, IsPaired: <Run Text="{x:Bind IsPaired, Mode=OneWay}"/>, IsConnected: <Run Text="{x:Bind IsConnected, Mode=OneWay}"/>, IsConnectable: <Run Text="{x:Bind IsConnectable, Mode=OneWay}"/>
+                        </TextBlock>
+                    </StackPanel>
+                </Grid>
+            </DataTemplate>
+        </ResourceDictionary>
+    </Page.Resources>
+    <Grid Background="#FF34655F" Padding="12,10,12,12">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Grid.Row="0" VerticalAlignment="Center">
+            <TextBlock FontSize="48" Margin="0,7,0,0" HorizontalAlignment="Center" Foreground="White">Device Pairing Mode</TextBlock>
+            <TextBlock FontSize="22" Margin="0,5,0,5" HorizontalAlignment="Center" Foreground="White">Enumerate nearby Bluetooth Low Enery Devices</TextBlock>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <Button x:Name="EnumerateButton" Content="Start enumerating" Click="{x:Bind EnumerateButton_Click}" Margin="0,0,10,0"/>
+                <Button x:Name="ConnectButton" Content="Connect" Click="{x:Bind ConnectButton_Click}" Margin="0,0,10,0"
+                    IsEnabled="{x:Bind Not(ResultsListView.SelectedItem.(local:BluetoothLEDeviceDisplay.IsPaired)), FallbackValue=False, Mode=OneWay}" />
+                <Button x:Name="DisconnectButton" Content="Disconnect" Click="{x:Bind DisconnectButton_Click}" Margin="0,0,10,0" Visibility="Collapsed"/>
+                <Button x:Name="Button" Click="mainPageNavigate">Back to Main Page</Button>
+            </StackPanel>
+        </StackPanel>
+        <ScrollViewer x:Name="BLEScanner" VerticalScrollMode="Auto" VerticalScrollBarVisibility="Auto" Grid.Row="1" Visibility="Collapsed">
+            <ListView x:Name="ResultsListView"
+                      ItemTemplate="{StaticResource ResultsListViewTemplate}"
+                      ItemsSource="{x:Bind KnownDevices, Mode=OneWay}"/>
+        </ScrollViewer>
+        <Grid x:Name="SensorSettings" Grid.Row="1" Margin="0,41,0,0" Visibility="Visible" >
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="3*" />
+                <ColumnDefinition Width="3*" />
+                <ColumnDefinition Width="3*" />
+            </Grid.ColumnDefinitions>
+
+            <Border Grid.Column="0" BorderBrush="#FF837C7C" BorderThickness="2, 2, 1, 2"/>
+            <StackPanel x:Name="AccelerometerSettings" Grid.Column="0" >
+                <TextBlock HorizontalAlignment="Center" Foreground="White" FontSize="20" Margin="0,0,0,20">Accelerometer Settings</TextBlock>
+                <Grid Margin="10,0,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="2*" />
+                        <ColumnDefinition Width="2*" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Foreground="White" FontSize="16" HorizontalAlignment="Left" Grid.Row="0" Grid.Column="0" TextWrapping="WrapWholeWords">Accelerometer Name:</TextBlock>
+                    <TextBlock Foreground="White" FontSize="16" HorizontalAlignment="Left" Grid.Row="0" Grid.Column="1" TextWrapping="WrapWholeWords">LSM9DS1</TextBlock>
+                    <TextBlock Foreground="White" FontSize="16" HorizontalAlignment="Left" Grid.Row="1" Grid.Column="0" TextWrapping="WrapWholeWords">Output Data Rate:</TextBlock>
+                    <TextBlock Foreground="White" FontSize="16" HorizontalAlignment="Left" Grid.Row="1" Grid.Column="1" TextWrapping="WrapWholeWords">119 Hz</TextBlock>
+                    <TextBlock Foreground="White" FontSize="16" HorizontalAlignment="Left" Grid.Row="2" Grid.Column="0" TextWrapping="WrapWholeWords">Full-Scale Measurement Range:</TextBlock>
+                    <TextBlock Foreground="White" FontSize="16" HorizontalAlignment="Left" Grid.Row="2" Grid.Column="1" TextWrapping="WrapWholeWords">+/- 4G</TextBlock>
+                    <TextBlock Foreground="White" FontSize="16" HorizontalAlignment="Left" Grid.Row="3" Grid.Column="0" TextWrapping="WrapWholeWords">High Pass Filter Status:</TextBlock>
+                    <TextBlock Foreground="White" FontSize="16" HorizontalAlignment="Left" Grid.Row="3" Grid.Column="1" TextWrapping="WrapWholeWords">Off</TextBlock>
+                    <TextBlock Foreground="White" FontSize="16" HorizontalAlignment="Left" Grid.Row="4" Grid.Column="0" TextWrapping="WrapWholeWords">High Pass Filter Cut-off:</TextBlock>
+                    <TextBlock Foreground="White" FontSize="16" HorizontalAlignment="Left" Grid.Row="4" Grid.Column="1" TextWrapping="WrapWholeWords">N/A</TextBlock>
+                    <TextBlock Foreground="White" FontSize="16" HorizontalAlignment="Left" Grid.Row="5" Grid.Column="0" TextWrapping="WrapWholeWords">Low Pass Filter Status:</TextBlock>
+                    <TextBlock Foreground="White" FontSize="16" HorizontalAlignment="Left" Grid.Row="5" Grid.Column="1" TextWrapping="WrapWholeWords">On</TextBlock>
+                    <TextBlock Foreground="White" FontSize="16" HorizontalAlignment="Left" Grid.Row="6" Grid.Column="0" TextWrapping="WrapWholeWords">Low Pass Filter Cut-off:</TextBlock>
+                    <TextBlock Foreground="White" FontSize="16" HorizontalAlignment="Left" Grid.Row="6" Grid.Column="1" TextWrapping="WrapWholeWords">50 Hz</TextBlock>
+                    <TextBlock Foreground="White" FontSize="16" HorizontalAlignment="Left" Grid.Row="7" Grid.Column="0" TextWrapping="WrapWholeWords">Power Consumption Mode:</TextBlock>
+                    <TextBlock Foreground="White" FontSize="16" HorizontalAlignment="Left" Grid.Row="7" Grid.Column="1" TextWrapping="WrapWholeWords">Standard</TextBlock>
+                </Grid>
+
+            </StackPanel>
+
+            <Border Grid.Column="1" BorderBrush="#FF837C7C" BorderThickness="1, 2, 1, 2"/>
+            <StackPanel x:Name="GyroscopeSettings" Grid.Column="1">
+                <TextBlock HorizontalAlignment="Center" Foreground="White" FontSize="20" Margin="0,0,0,20">Gyroscope Settings</TextBlock>
+                <Grid Margin="10,0,0,0" >
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="2*" />
+                        <ColumnDefinition Width="2*" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Foreground="White" FontSize="16" HorizontalAlignment="Left" Grid.Row="0" Grid.Column="0" TextWrapping="WrapWholeWords">Accelerometer Name:</TextBlock>
+                    <TextBlock Foreground="White" FontSize="16" HorizontalAlignment="Left" Grid.Row="0" Grid.Column="1" TextWrapping="WrapWholeWords">LSM9DS1</TextBlock>
+                    <TextBlock Foreground="White" FontSize="16" HorizontalAlignment="Left" Grid.Row="1" Grid.Column="0" TextWrapping="WrapWholeWords">Output Data Rate:</TextBlock>
+                    <TextBlock Foreground="White" FontSize="16" HorizontalAlignment="Left" Grid.Row="1" Grid.Column="1" TextWrapping="WrapWholeWords">119 Hz</TextBlock>
+                    <TextBlock Foreground="White" FontSize="16" HorizontalAlignment="Left" Grid.Row="2" Grid.Column="0" TextWrapping="WrapWholeWords">Full-Scale Measurement Range:</TextBlock>
+                    <TextBlock Foreground="White" FontSize="16" HorizontalAlignment="Left" Grid.Row="2" Grid.Column="1" TextWrapping="WrapWholeWords">+/- 4G</TextBlock>
+                    <TextBlock Foreground="White" FontSize="16" HorizontalAlignment="Left" Grid.Row="3" Grid.Column="0" TextWrapping="WrapWholeWords">High Pass Filter Status:</TextBlock>
+                    <TextBlock Foreground="White" FontSize="16" HorizontalAlignment="Left" Grid.Row="3" Grid.Column="1" TextWrapping="WrapWholeWords">Off</TextBlock>
+                    <TextBlock Foreground="White" FontSize="16" HorizontalAlignment="Left" Grid.Row="4" Grid.Column="0" TextWrapping="WrapWholeWords">High Pass Filter Cut-off:</TextBlock>
+                    <TextBlock Foreground="White" FontSize="16" HorizontalAlignment="Left" Grid.Row="4" Grid.Column="1" TextWrapping="WrapWholeWords">N/A</TextBlock>
+                    <TextBlock Foreground="White" FontSize="16" HorizontalAlignment="Left" Grid.Row="5" Grid.Column="0" TextWrapping="WrapWholeWords">Low Pass Filter Status:</TextBlock>
+                    <TextBlock Foreground="White" FontSize="16" HorizontalAlignment="Left" Grid.Row="5" Grid.Column="1" TextWrapping="WrapWholeWords">On</TextBlock>
+                    <TextBlock Foreground="White" FontSize="16" HorizontalAlignment="Left" Grid.Row="6" Grid.Column="0" TextWrapping="WrapWholeWords">Low Pass Filter Cut-off:</TextBlock>
+                    <TextBlock Foreground="White" FontSize="16" HorizontalAlignment="Left" Grid.Row="6" Grid.Column="1" TextWrapping="WrapWholeWords">50 Hz</TextBlock>
+                    <TextBlock Foreground="White" FontSize="16" HorizontalAlignment="Left" Grid.Row="7" Grid.Column="0" TextWrapping="WrapWholeWords">Power Consumption Mode:</TextBlock>
+                    <TextBlock Foreground="White" FontSize="16" HorizontalAlignment="Left" Grid.Row="7" Grid.Column="1" TextWrapping="WrapWholeWords">Standard</TextBlock>
+                </Grid>
+            </StackPanel>
+
+            <Border Grid.Column="2" BorderBrush="#FF837C7C" BorderThickness="1, 2, 2, 2"/>
+            <StackPanel x:Name="MagnetometerSettings" Grid.Column="2">
+                <TextBlock HorizontalAlignment="Center" Foreground="White" FontSize="20" Margin="0,0,0,20">Magnetometer Settings</TextBlock>
+                <Grid Margin="10,0,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="2*" />
+                        <ColumnDefinition Width="2*" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Foreground="White" FontSize="16" HorizontalAlignment="Left" Grid.Row="0" Grid.Column="0" TextWrapping="WrapWholeWords">Accelerometer Name:</TextBlock>
+                    <TextBlock Foreground="White" FontSize="16" HorizontalAlignment="Left" Grid.Row="0" Grid.Column="1" TextWrapping="WrapWholeWords">LSM9DS1</TextBlock>
+                    <TextBlock Foreground="White" FontSize="16" HorizontalAlignment="Left" Grid.Row="1" Grid.Column="0" TextWrapping="WrapWholeWords">Output Data Rate:</TextBlock>
+                    <TextBlock Foreground="White" FontSize="16" HorizontalAlignment="Left" Grid.Row="1" Grid.Column="1" TextWrapping="WrapWholeWords">119 Hz</TextBlock>
+                    <TextBlock Foreground="White" FontSize="16" HorizontalAlignment="Left" Grid.Row="2" Grid.Column="0" TextWrapping="WrapWholeWords">Full-Scale Measurement Range:</TextBlock>
+                    <TextBlock Foreground="White" FontSize="16" HorizontalAlignment="Left" Grid.Row="2" Grid.Column="1" TextWrapping="WrapWholeWords">+/- 4G</TextBlock>
+                    <TextBlock Foreground="White" FontSize="16" HorizontalAlignment="Left" Grid.Row="3" Grid.Column="0" TextWrapping="WrapWholeWords">High Pass Filter Status:</TextBlock>
+                    <TextBlock Foreground="White" FontSize="16" HorizontalAlignment="Left" Grid.Row="3" Grid.Column="1" TextWrapping="WrapWholeWords">Off</TextBlock>
+                    <TextBlock Foreground="White" FontSize="16" HorizontalAlignment="Left" Grid.Row="4" Grid.Column="0" TextWrapping="WrapWholeWords">High Pass Filter Cut-off:</TextBlock>
+                    <TextBlock Foreground="White" FontSize="16" HorizontalAlignment="Left" Grid.Row="4" Grid.Column="1" TextWrapping="WrapWholeWords">N/A</TextBlock>
+                    <TextBlock Foreground="White" FontSize="16" HorizontalAlignment="Left" Grid.Row="5" Grid.Column="0" TextWrapping="WrapWholeWords">Low Pass Filter Status:</TextBlock>
+                    <TextBlock Foreground="White" FontSize="16" HorizontalAlignment="Left" Grid.Row="5" Grid.Column="1" TextWrapping="WrapWholeWords">On</TextBlock>
+                    <TextBlock Foreground="White" FontSize="16" HorizontalAlignment="Left" Grid.Row="6" Grid.Column="0" TextWrapping="WrapWholeWords">Low Pass Filter Cut-off:</TextBlock>
+                    <TextBlock Foreground="White" FontSize="16" HorizontalAlignment="Left" Grid.Row="6" Grid.Column="1" TextWrapping="WrapWholeWords">50 Hz</TextBlock>
+                    <TextBlock Foreground="White" FontSize="16" HorizontalAlignment="Left" Grid.Row="7" Grid.Column="0" TextWrapping="WrapWholeWords">Power Consumption Mode:</TextBlock>
+                    <TextBlock Foreground="White" FontSize="16" HorizontalAlignment="Left" Grid.Row="7" Grid.Column="1" TextWrapping="WrapWholeWords">Standard</TextBlock>
+                </Grid>
+            </StackPanel>
+        </Grid>
+        <StackPanel x:Name="StatusPanel" Orientation="Vertical" Grid.Row="2">
+            <TextBlock x:Name="StatusLabel" Margin="10,0,0,10" TextWrapping="Wrap" Text="Status:" />
+            <Border x:Name="StatusBorder" Margin="0,0,0,0">
+                <ScrollViewer VerticalScrollMode="Auto"  VerticalScrollBarVisibility="Auto" MaxHeight="200">
+                    <!-- Use LiveSetting to enable screen readers to announce the status update. -->
+                    <TextBlock x:Name="StatusBlock" FontWeight="Bold" AutomationProperties.LiveSetting="Assertive"
+                                   MaxWidth="{Binding ElementName=Splitter, Path=ActualWidth}" Margin="10,10,10,20" TextWrapping="Wrap"  />
+                </ScrollViewer>
+            </Border>
+        </StackPanel>
+    </Grid>
 </Page>

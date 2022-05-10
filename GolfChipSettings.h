@@ -5,15 +5,54 @@ namespace winrt::Golf_Chip_WinRT::implementation
 {
     struct GolfChipSettings : GolfChipSettingsT<GolfChipSettings>
     {
-        GolfChipSettings() = default;
+        GolfChipSettings()
+        {
 
-        winrt::Windows::Foundation::Collections::IObservableVector<winrt::Windows::Foundation::IInspectable> KnownDevices();
-        winrt::Windows::UI::Xaml::Controls::ListView ResultsListView();
+        }
+
+        void mainPageNavigate(Windows::Foundation::IInspectable const& sender, Windows::UI::Xaml::RoutedEventArgs const& args);
+        void OnNavigatedFrom(Windows::UI::Xaml::Navigation::NavigationEventArgs const& e);
+        void OnNavigatedTo(Windows::UI::Xaml::Navigation::NavigationEventArgs const& e);
+
+        winrt::Windows::Foundation::Collections::IObservableVector<winrt::Windows::Foundation::IInspectable> KnownDevices()
+        {
+            return m_knownDevices;
+        }
+
         void EnumerateButton_Click();
         void ConnectButton_Click();
         void DisconnectButton_Click();
-        bool Not(bool value);
+        bool Not(bool value) { return !value; }
+
         void NotifyUser(hstring const& strMessage, winrt::Golf_Chip_WinRT::NotifyType const& type);
+        void UpdateStatus(const hstring& strMessage, NotifyType type);
+
+    private:
+        Windows::Foundation::Collections::IObservableVector<Windows::Foundation::IInspectable> m_knownDevices = single_threaded_observable_vector<Windows::Foundation::IInspectable>();
+
+        std::vector<Windows::Devices::Enumeration::DeviceInformation> UnknownDevices;
+        Windows::Devices::Enumeration::DeviceWatcher deviceWatcher{ nullptr };
+        event_token deviceWatcherAddedToken;
+        event_token deviceWatcherUpdatedToken;
+        event_token deviceWatcherRemovedToken;
+        event_token deviceWatcherEnumerationCompletedToken;
+        event_token deviceWatcherStoppedToken;
+
+        void DisplaySearchMode();
+        void DisplaySettingsMode();
+
+        void StartBleDeviceWatcher();
+        void StopBleDeviceWatcher();
+        std::tuple<Golf_Chip_WinRT::BluetoothLEDeviceDisplay, uint32_t> FindBluetoothLeDeviceDisplay(hstring const& id);
+        std::vector<Windows::Devices::Enumeration::DeviceInformation>::iterator FindUnknownDevices(hstring const& id);
+
+        fire_and_forget DeviceWatcher_Added(Windows::Devices::Enumeration::DeviceWatcher sender, Windows::Devices::Enumeration::DeviceInformation deviceInfo);
+        fire_and_forget DeviceWatcher_Updated(Windows::Devices::Enumeration::DeviceWatcher sender, Windows::Devices::Enumeration::DeviceInformationUpdate deviceInfoUpdate);
+        fire_and_forget DeviceWatcher_Removed(Windows::Devices::Enumeration::DeviceWatcher sender, Windows::Devices::Enumeration::DeviceInformationUpdate deviceInfoUpdate);
+        fire_and_forget DeviceWatcher_EnumerationCompleted(Windows::Devices::Enumeration::DeviceWatcher sender, Windows::Foundation::IInspectable const&);
+        fire_and_forget DeviceWatcher_Stopped(Windows::Devices::Enumeration::DeviceWatcher sender, Windows::Foundation::IInspectable const&);
+
+        uint64_t getBLEAddress(const hstring& unformattedAddress);
     };
 }
 namespace winrt::Golf_Chip_WinRT::factory_implementation

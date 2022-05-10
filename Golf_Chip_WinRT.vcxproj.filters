@@ -76,5 +76,8 @@
     <Page Include="GolfChipSettings.xaml">
       <Filter>Pages</Filter>
     </Page>
+    <Page Include="Styles.xaml">
+      <Filter>Pages</Filter>
+    </Page>
   </ItemGroup>
 </Project>

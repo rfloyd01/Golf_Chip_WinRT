@@ -11,22 +11,23 @@ namespace winrt::Golf_Chip_WinRT::implementation
 {
     void MainPage::deviceSettingsMode_Click(Windows::Foundation::IInspectable const& /*sender*/, Windows::UI::Xaml::RoutedEventArgs const& /*args*/ )
     {
-        deviceSettingsMode().Content(box_value(L"Clicked"));
+        //Navigate back to the main page
+        this->Frame().Navigate(xaml_typename<GolfChipSettings>());
     }
     void MainPage::freeSwingMode_Click(Windows::Foundation::IInspectable const& /*sender*/, Windows::UI::Xaml::RoutedEventArgs const& /*args*/)
     {
-        freeSwingMode().Content(box_value(L"Clicked"));
+        freeSwingMode().Content(box_value(L"Not yet implemented"));
     }
     void MainPage::swingAnalysisMode_Click(Windows::Foundation::IInspectable const& /*sender*/, Windows::UI::Xaml::RoutedEventArgs const& /*args*/)
     {
-        swingAnalysisMode().Content(box_value(L"Clicked"));
+        swingAnalysisMode().Content(box_value(L"Not yet implemented"));
     }
     void MainPage::trainingMode_Click(Windows::Foundation::IInspectable const& /*sender*/, Windows::UI::Xaml::RoutedEventArgs const& /*args*/)
     {
-        trainingMode().Content(box_value(L"Clicked"));
+        trainingMode().Content(box_value(L"Not yet implemented"));
     }
     void MainPage::calibrationMode_Click(Windows::Foundation::IInspectable const& /*sender*/, Windows::UI::Xaml::RoutedEventArgs const& /*args*/)
     {
-        calibrationMode().Content(box_value(L"Clicked"));
+        calibrationMode().Content(box_value(L"Not yet implemented"));
     }
 }
