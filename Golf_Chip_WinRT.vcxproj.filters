@@ -3,15 +3,24 @@
   <ItemGroup>
     <Midl Include="App.idl" />
     <Midl Include="MainPage.idl" />
+    <Midl Include="Project.idl">
+      <Filter>Pages</Filter>
+    </Midl>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="App.cpp" />
     <ClCompile Include="MainPage.cpp" />
     <ClCompile Include="$(GeneratedFilesDir)module.g.cpp" />
+    <ClCompile Include="BluetoothLEDeviceDisplay.cpp">
+      <Filter>Pages</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
+    <ClInclude Include="BluetoothLEDeviceDisplay.h">
+      <Filter>Pages</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\Wide310x150Logo.scale-200.png">
@@ -62,6 +71,9 @@
   </ItemGroup>
   <ItemGroup>
     <Page Include="MainPage.xaml">
+      <Filter>Pages</Filter>
+    </Page>
+    <Page Include="GolfChipSettings.xaml">
       <Filter>Pages</Filter>
     </Page>
   </ItemGroup>

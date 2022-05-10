@@ -107,6 +107,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="BluetoothLEDeviceDisplay.h" />
+    <ClInclude Include="GolfChipSettings.h">
+      <DependentUpon>GolfChipSettings.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
     <ClInclude Include="MainPage.h">
       <DependentUpon>MainPage.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -136,6 +141,11 @@
     <Image Include="Assets\Wide310x150Logo.scale-200.png" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="BluetoothLEDeviceDisplay.cpp" />
+    <ClCompile Include="GolfChipSettings.cpp">
+      <DependentUpon>GolfChipSettings.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
     <ClCompile Include="MainPage.cpp">
       <DependentUpon>MainPage.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -152,10 +162,15 @@
     <Midl Include="App.idl">
       <DependentUpon>App.xaml</DependentUpon>
     </Midl>
+    <Midl Include="GolfChipSettings.idl">
+      <DependentUpon>GolfChipSettings.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Midl>
     <Midl Include="MainPage.idl">
       <DependentUpon>MainPage.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Midl>
+    <Midl Include="Project.idl" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".gitignore" />
@@ -166,6 +181,9 @@
     </Text>
   </ItemGroup>
   <ItemGroup>
+    <Page Include="GolfChipSettings.xaml">
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="MainPage.xaml">
       <SubType>Designer</SubType>
     </Page>

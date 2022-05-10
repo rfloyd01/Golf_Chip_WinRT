@@ -1,0 +1,22 @@
+namespace Golf_Chip_WinRT
+{
+	//Display class used to represent a BluetoothLEDevice in the Device list
+	runtimeclass BluetoothLEDeviceDisplay : Windows.UI.Xaml.Data.INotifyPropertyChanged
+	{
+		Windows.Devices.Enumeration.DeviceInformation DeviceInformation{ get; };
+
+		String Id{ get; };
+		String Name{ get; };
+		Boolean IsPaired{ get; };
+		Boolean IsConnected{ get; };
+		Boolean IsConnectable{ get; };
+		String Address{ get; };
+
+		IMapView<String, Object> Properties{ get; };
+
+		Windows.UI.Xaml.Media.Imaging.BitmapImage GlyphBitmapImage{ get; };
+
+		void Update(Windows.Devices.Enumeration.DeviceInformationUpdate deviceInfoUpdate);
+	};
+
+}

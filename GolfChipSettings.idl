@@ -1,0 +1,26 @@
+namespace Golf_Chip_WinRT
+{
+    enum NotifyType
+    {
+        StatusMessage,
+        ErrorMessage
+    };
+
+    [default_interface]
+    runtimeclass GolfChipSettings : Windows.UI.Xaml.Controls.Page
+    {
+        GolfChipSettings();
+        
+        Windows.Foundation.Collections.IObservableVector<Object> KnownDevices{ get; };
+
+        Windows.UI.Xaml.Controls.ListView ResultsListView{ get; };
+
+        void EnumerateButton_Click();
+        void ConnectButton_Click();
+        void DisconnectButton_Click();
+
+        Boolean Not(Boolean value);
+
+        void NotifyUser(String strMessage, NotifyType type);
+    }
+}
