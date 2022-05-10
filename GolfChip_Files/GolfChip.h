@@ -18,8 +18,11 @@ class GolfChip
 public:
 	GolfChip();
 	
-	std::shared_ptr<BLEDevice> getBLEDevice() { return m_bleDevice; }
+	std::shared_ptr<BLEDevice> getBLEDevicePointer() { return m_bleDevice; }
 	std::shared_ptr<IMU> getSensor() { return m_IMU; }
+
+	winrt::Windows::Devices::Bluetooth::BluetoothLEDevice getBLEDevice(){ return m_bleDevice->getBLEDevice(); }
+	void setBLEDevice(winrt::Windows::Devices::Bluetooth::BluetoothLEDevice bleDevice) { m_bleDevice->setBLEDevice(bleDevice); }
 
 private:
 	std::shared_ptr<BLEDevice> m_bleDevice;
