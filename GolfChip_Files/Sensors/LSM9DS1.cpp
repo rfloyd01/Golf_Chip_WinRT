@@ -64,7 +64,6 @@ LSM9DS1_ACC::LSM9DS1_ACC(uint8_t* defaultSettings)
 	if (*(rawSettings + 2) & 0x100)
 	{
 		LPFFreq.possibleSettingOptions = { SensorSettingOptions::LPF_408_HZ, SensorSettingOptions::LPF_211_HZ, SensorSettingOptions::LPF_105_HZ, SensorSettingOptions::LPF_50_HZ };
-		LPFFreq.currentSettingOption = getRawSetting(SensorSettingType::LOW_PASS_FILTER_FREQ);
 	}
 	else
 	{
@@ -77,6 +76,7 @@ LSM9DS1_ACC::LSM9DS1_ACC(uint8_t* defaultSettings)
 		default: LPFFreq.possibleSettingOptions = { SensorSettingOptions::LPF_408_HZ };
 		}
 	}
+	LPFFreq.currentSettingOption = getRawSetting(SensorSettingType::LOW_PASS_FILTER_FREQ);
 	sensorSettings.push_back(LPFFreq);
 }
 
@@ -144,6 +144,7 @@ SensorSettingOptions LSM9DS1_ACC::getRawSetting(SensorSettingType sensorSetting)
 		case 0x01: return SensorSettingOptions::ACC_FSR_16_G;
 		case 0x10: return SensorSettingOptions::ACC_FSR_4_G;
 		case 0x11: return SensorSettingOptions::ACC_FSR_8_G;
+		default: return SensorSettingOptions::ACC_FSR_N_A;
 		}
 	}
 	else if (sensorSetting == SensorSettingType::FILTER_SETTINGS)
