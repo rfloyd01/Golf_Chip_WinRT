@@ -1,9 +1,6 @@
 #pragma once
 
-//Forward Declarations
-enum class SensorSettingOptions;
-enum class SensorSettingType;
-struct SensorSettings;
+#include "SensorSettings.h"
 
 enum SensorType
 {
@@ -20,6 +17,8 @@ public:
 	SensorSettingOptions getCurrentSettingOption(SensorSettingType sensorSetting);
 	static std::shared_ptr<Sensor> SensorFactory(std::string sensorName, uint8_t* sensorSettings);
 	SensorType getSensorType() { return sensorType; }
+	uint8_t* getRawSettings() { return rawSettings; }
+	std::vector<SensorSettings> getSensorSettings();
 
 protected:
 	virtual SensorSettingOptions getRawSetting(SensorSettingType sensorSetting) = 0; //Every sensor may have a slightly different raw settings byte array so will need a different way to read it

@@ -1,7 +1,6 @@
 #include "pch.h"
 #include "Sensor.h"
 
-#include "SensorSettings.h"
 #include "LSM9DS1.h"
 
 std::shared_ptr<Sensor> Sensor::SensorFactory(std::string sensorName, uint8_t* sensorSettings)
@@ -26,4 +25,9 @@ SensorSettingOptions Sensor::getCurrentSettingOption(SensorSettingType sensorSet
 
 	//The equivalent of a null value
 	return SensorSettingOptions::LAST;
+}
+
+std::vector<SensorSettings> Sensor::getSensorSettings()
+{
+	return sensorSettings;
 }
