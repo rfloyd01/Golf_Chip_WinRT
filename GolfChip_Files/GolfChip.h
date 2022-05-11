@@ -2,7 +2,7 @@
 #include "pch.h"
 
 #include "IMU.h"
-#include "BLEDevice.h"
+//#include "BLEDevice.h"
 
 //This file does two things. First it defines the GolfChip class, which represents the physical 
 //chip that we connect to (both the BLE portion as well as the IMU portion, and associated
@@ -18,14 +18,28 @@ class GolfChip
 public:
 	GolfChip();
 	
-	std::shared_ptr<BLEDevice> getBLEDevicePointer() { return m_bleDevice; }
-	std::shared_ptr<IMU> getSensor() { return m_IMU; }
+	std::shared_ptr<winrt::Windows::Devices::Bluetooth::BluetoothLEDevice> getBLEDevice() { return m_bleDevice; }
+	void setBLEDevice(winrt::Windows::Devices::Bluetooth::BluetoothLEDevice bleDevice) 
+	{ 
+		//reset the shared pointer if necessary
+		if (m_bleDevice != nullptr) m_bleDevice.reset();
+		m_bleDevice = std::make_shared<winrt::Windows::Devices::Bluetooth::BluetoothLEDevice>(bleDevice);
+	}
 
-	winrt::Windows::Devices::Bluetooth::BluetoothLEDevice getBLEDevice(){ return m_bleDevice->getBLEDevice(); }
-	void setBLEDevice(winrt::Windows::Devices::Bluetooth::BluetoothLEDevice bleDevice) { m_bleDevice->setBLEDevice(bleDevice); }
+	std::shared_ptr<IMU> getIMU() { return m_IMU; }
+
+	void setInformationCharacteristic(winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattCharacteristic c) { informationCharacteristic = c; }
+	winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattCharacteristic getInformationCharacteristic(){ return informationCharacteristic; }
+
+	void Disconnect();
+
 
 private:
-	std::shared_ptr<BLEDevice> m_bleDevice;
+
+
+	std::shared_ptr<winrt::Windows::Devices::Bluetooth::BluetoothLEDevice> m_bleDevice{nullptr};
+	winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattCharacteristic informationCharacteristic{ nullptr };
+
 	std::shared_ptr<IMU> m_IMU;
 };
 
@@ -41,7 +55,7 @@ namespace winrt::Golf_Chip_WinRT
 		static const int number_of_samples{ 10 }; //number of sensor samples stored in the BLE characteristic at a given time. Due to the time associated with reading BLE broadcasts, its more efficient to store multiple data points at a single time then try to read each individual point
 		static constexpr guid GolfChipSensorDataServiceUuid{ 0x0000180c, 0x0000, 0x1000, { 0x80, 0x00, 0x00, 0x80, 0x5f, 0x9b, 0x34, 0xfb } }; // {0000180c-0000-1000-8000-00805f9b34fb}
 		static const uint32_t GolfChipSensorDataCharacteristicUuid{ 0x00002A58 };
-		static const uint32_t GolfChipSensorTestCharacteristicUuid{ 0x00002A59 };
+		static const uint32_t GolfChipSensorInformationCharacteristicUuid{ 0x00002A59 };
 	};
 
 	struct GlobalGolfChip

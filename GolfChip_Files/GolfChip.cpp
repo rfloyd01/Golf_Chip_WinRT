@@ -11,5 +11,13 @@ GolfChip::GolfChip()
 	//to send data from the chip to this app.
 
 	m_IMU = std::make_shared<IMU>();
-	m_bleDevice = std::make_shared<BLEDevice>(m_IMU);
+}
+
+void GolfChip::Disconnect()
+{
+	//set appropriate variables to null pointers to terminate the connection
+	m_bleDevice.reset();
+	informationCharacteristic = nullptr;
+
+	m_IMU.reset();
 }

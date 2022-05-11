@@ -18,6 +18,15 @@
     <ClCompile Include="GolfChip_Files\GolfChip.cpp">
       <Filter>GolfChip_Files</Filter>
     </ClCompile>
+    <ClCompile Include="GolfChip_Files\IMU.cpp">
+      <Filter>GolfChip_Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GolfChip_Files\Sensors\LSM9DS1.cpp">
+      <Filter>GolfChip_Files\Sensors</Filter>
+    </ClCompile>
+    <ClCompile Include="GolfChip_Files\Sensors\Sensor.cpp">
+      <Filter>GolfChip_Files\Sensors</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -26,6 +35,15 @@
     </ClInclude>
     <ClInclude Include="GolfChip_Files\GolfChip.h">
       <Filter>GolfChip_Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GolfChip_Files\IMU.h">
+      <Filter>GolfChip_Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GolfChip_Files\Sensors\LSM9DS1.h">
+      <Filter>GolfChip_Files\Sensors</Filter>
+    </ClInclude>
+    <ClInclude Include="GolfChip_Files\Sensors\Sensor.h">
+      <Filter>GolfChip_Files\Sensors</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -63,6 +81,9 @@
     </Filter>
     <Filter Include="GolfChip_Files">
       <UniqueIdentifier>{02a55289-7ea0-4892-bf4e-b0ebea5066c0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GolfChip_Files\Sensors">
+      <UniqueIdentifier>{8f70f38d-0e29-411e-84a7-62decdd6c662}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
