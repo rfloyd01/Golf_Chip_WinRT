@@ -18,6 +18,10 @@ namespace winrt::Golf_Chip_WinRT::implementation
         {
             return m_knownDevices;
         }
+        winrt::Windows::Foundation::Collections::IObservableVector<winrt::Windows::Foundation::IInspectable> DeviceSettings()
+        {
+            return m_deviceSettings;
+        }
 
         void EnumerateButton_Click();
         fire_and_forget ConnectButton_Click();
@@ -29,6 +33,7 @@ namespace winrt::Golf_Chip_WinRT::implementation
 
     private:
         Windows::Foundation::Collections::IObservableVector<Windows::Foundation::IInspectable> m_knownDevices = single_threaded_observable_vector<Windows::Foundation::IInspectable>();
+        Windows::Foundation::Collections::IObservableVector<Windows::Foundation::IInspectable> m_deviceSettings = single_threaded_observable_vector<Windows::Foundation::IInspectable>();
 
         std::vector<Windows::Devices::Enumeration::DeviceInformation> UnknownDevices;
         Windows::Devices::Enumeration::DeviceWatcher deviceWatcher{ nullptr };
@@ -40,6 +45,7 @@ namespace winrt::Golf_Chip_WinRT::implementation
 
         void DisplaySearchMode();
         void DisplaySettingsMode();
+        void SetSettingVectors();
 
         void StartBleDeviceWatcher();
         void StopBleDeviceWatcher();

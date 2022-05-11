@@ -12,6 +12,14 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Styles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
+            <DataTemplate x:Key="SettingsListViewTemplate" x:DataType="local:GolfChipSettingsDisplay">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock TextWrapping="WrapWholeWords">
+                        <Run Text="{x:Bind SettingType, Mode=OneWay}" FontWeight="Bold"/>: 
+                    </TextBlock>
+                    <ComboBox ItemsSource="{x:Bind AvailableOptions, Mode=OneWay}" SelectedIndex="{x:Bind SelectedOption, Mode=OneWay}"/>
+                </StackPanel>
+            </DataTemplate>
             <DataTemplate x:Key="ResultsListViewTemplate" x:DataType="local:BluetoothLEDeviceDisplay">
                 <Grid Margin="5">
                     <Grid.ColumnDefinitions>
@@ -64,38 +72,11 @@
             <Border Grid.Column="0" BorderBrush="#FF837C7C" BorderThickness="2, 2, 1, 2"/>
             <StackPanel x:Name="AccelerometerSettings" Grid.Column="0" >
                 <TextBlock HorizontalAlignment="Center" Foreground="White" FontSize="20" Margin="0,0,0,20">Accelerometer Settings</TextBlock>
-                <Grid Margin="10,0,0,0">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="2*" />
-                        <ColumnDefinition Width="2*" />
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
-                    <TextBlock Foreground="White" FontSize="16" HorizontalAlignment="Left" Grid.Row="0" Grid.Column="0" TextWrapping="WrapWholeWords">Accelerometer Name:</TextBlock>
-                    <TextBlock Foreground="White" FontSize="16" HorizontalAlignment="Left" Grid.Row="0" Grid.Column="1" TextWrapping="WrapWholeWords">LSM9DS1</TextBlock>
-                    <TextBlock Foreground="White" FontSize="16" HorizontalAlignment="Left" Grid.Row="1" Grid.Column="0" TextWrapping="WrapWholeWords">Output Data Rate:</TextBlock>
-                    <TextBlock Foreground="White" FontSize="16" HorizontalAlignment="Left" Grid.Row="1" Grid.Column="1" TextWrapping="WrapWholeWords">119 Hz</TextBlock>
-                    <TextBlock Foreground="White" FontSize="16" HorizontalAlignment="Left" Grid.Row="2" Grid.Column="0" TextWrapping="WrapWholeWords">Full-Scale Measurement Range:</TextBlock>
-                    <TextBlock Foreground="White" FontSize="16" HorizontalAlignment="Left" Grid.Row="2" Grid.Column="1" TextWrapping="WrapWholeWords">+/- 4G</TextBlock>
-                    <TextBlock Foreground="White" FontSize="16" HorizontalAlignment="Left" Grid.Row="3" Grid.Column="0" TextWrapping="WrapWholeWords">High Pass Filter Status:</TextBlock>
-                    <TextBlock Foreground="White" FontSize="16" HorizontalAlignment="Left" Grid.Row="3" Grid.Column="1" TextWrapping="WrapWholeWords">Off</TextBlock>
-                    <TextBlock Foreground="White" FontSize="16" HorizontalAlignment="Left" Grid.Row="4" Grid.Column="0" TextWrapping="WrapWholeWords">High Pass Filter Cut-off:</TextBlock>
-                    <TextBlock Foreground="White" FontSize="16" HorizontalAlignment="Left" Grid.Row="4" Grid.Column="1" TextWrapping="WrapWholeWords">N/A</TextBlock>
-                    <TextBlock Foreground="White" FontSize="16" HorizontalAlignment="Left" Grid.Row="5" Grid.Column="0" TextWrapping="WrapWholeWords">Low Pass Filter Status:</TextBlock>
-                    <TextBlock Foreground="White" FontSize="16" HorizontalAlignment="Left" Grid.Row="5" Grid.Column="1" TextWrapping="WrapWholeWords">On</TextBlock>
-                    <TextBlock Foreground="White" FontSize="16" HorizontalAlignment="Left" Grid.Row="6" Grid.Column="0" TextWrapping="WrapWholeWords">Low Pass Filter Cut-off:</TextBlock>
-                    <TextBlock Foreground="White" FontSize="16" HorizontalAlignment="Left" Grid.Row="6" Grid.Column="1" TextWrapping="WrapWholeWords">50 Hz</TextBlock>
-                    <TextBlock Foreground="White" FontSize="16" HorizontalAlignment="Left" Grid.Row="7" Grid.Column="0" TextWrapping="WrapWholeWords">Power Consumption Mode:</TextBlock>
-                    <TextBlock Foreground="White" FontSize="16" HorizontalAlignment="Left" Grid.Row="7" Grid.Column="1" TextWrapping="WrapWholeWords">Standard</TextBlock>
-                </Grid>
+                <ScrollViewer x:Name="AccelerometerSettingsList" VerticalScrollMode="Auto" VerticalScrollBarVisibility="Auto">
+                    <ListView x:Name="AccSettingsListView"
+                      ItemTemplate="{StaticResource SettingsListViewTemplate}"
+                      ItemsSource="{x:Bind DeviceSettings, Mode=OneWay}"/>
+                </ScrollViewer>
 
             </StackPanel>
 

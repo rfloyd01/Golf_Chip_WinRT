@@ -2,7 +2,9 @@
 #include "GolfChipSettings.h"
 #include "GolfChipSettings.g.cpp"
 #include "BluetoothLEDeviceDisplay.h"
+#include "GolfChipSettingsDisplay.h"
 #include "GolfChip_Files/GolfChip.h"
+#include "GolfChip_Files/Sensors/Sensor.h"
 
 using namespace winrt;
 using namespace Windows::Devices::Bluetooth;
@@ -68,12 +70,10 @@ namespace winrt::Golf_Chip_WinRT::implementation
         
         if (GlobalGolfChip::m_golfChip->getBLEDevice() != nullptr)
         {
-            OutputDebugStringW(L"yooo\n");
             DisplaySettingsMode();
         }
         else
         {
-            OutputDebugStringW(L"yeee\n");
             DisplaySearchMode();
         }
     }
@@ -171,6 +171,22 @@ namespace winrt::Golf_Chip_WinRT::implementation
 
         //Populate the settings arrays
         //PopulateSettingsVectors();
+    }
+
+    void GolfChipSettings::SetSettingVectors()
+    {
+        //Accelerometer first
+        auto settings = GlobalGolfChip::m_golfChip->getIMU()->getSensorSettings(SensorType::ACCELEROMETER);
+        //TODO: currently only settings 0 (Operating Mode) and 4 (High Pass Filter Freq) work, any others break the program, why is this the case?
+        //It appears to be something wrong with the XAML code for the combo box which lists out the possible options
+
+        /*m_deviceSettings.Append(make<GolfChipSettingsDisplay>(settings[0]));
+        m_deviceSettings.Append(make<GolfChipSettingsDisplay>(settings[4]));
+        m_deviceSettings.Append(make<GolfChipSettingsDisplay>(settings[5]));*/
+        for (int i = 0; i < settings.size(); i++)
+        {
+            m_deviceSettings.Append(make<GolfChipSettingsDisplay>(settings[i]));
+        }
     }
 #pragma endregion
 
@@ -407,15 +423,15 @@ namespace winrt::Golf_Chip_WinRT::implementation
                 GenericAttributeProfile::GattCharacteristicsResult characteristicResult = co_await service.GetCharacteristicsAsync();
 
                 //Cycle through the Characteristics until we find the information one.
-                int characteristicLocation = 0, testCharacteristicLocation = 0;
+                int characteristicLocation = 0, informationCharacteristicLocation = 0;
                 for (int i = 0; i < characteristicResult.Characteristics().Size(); i++)
                 {
                     uint32_t c = characteristicResult.Characteristics().GetAt(i).Uuid().Data1;
-                    if (c == Constants::GolfChipSensorInformationCharacteristicUuid) testCharacteristicLocation = i;
+                    if (c == Constants::GolfChipSensorInformationCharacteristicUuid) informationCharacteristicLocation = i;
                 }
 
                 //Save the characteristic info in the shared section of the code
-                GlobalGolfChip::m_golfChip->setInformationCharacteristic(characteristicResult.Characteristics().GetAt(characteristicLocation));
+                GlobalGolfChip::m_golfChip->setInformationCharacteristic(characteristicResult.Characteristics().GetAt(informationCharacteristicLocation));
 
                 NotifyUser(L"Succesfully connected to the device!", NotifyType::StatusMessage);
 
@@ -424,9 +440,11 @@ namespace winrt::Golf_Chip_WinRT::implementation
 
                 //TODO: While testing, I have all information in a single characteristic, ultimately I will break this out
                 //into three separate ones (one each for the acc, gyr and mag sensors).
-                /*auto read = co_await GlobalGolfChip::m_golfChip->getInformationCharacteristic().ReadValueAsync();
-                auto accelerometerSettings = read.Value().data();
-                GlobalGolfChip::m_golfChip->setIMUSensor(accelerometerSettings);*/
+                auto characteristicValue = co_await GlobalGolfChip::m_golfChip->getInformationCharacteristic().ReadValueAsync();
+                GlobalGolfChip::m_golfChip->getIMU()->setSensor("LSM9DS1_ACC", characteristicValue.Value().data());
+
+                //Fill out the display settings vectors
+                SetSettingVectors();
 
                 //After onnecting to the device, set the display to "settings mode" and stop the device watcher from enumerating.
                 DisplaySettingsMode();

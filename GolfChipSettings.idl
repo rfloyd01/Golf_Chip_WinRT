@@ -12,6 +12,7 @@ namespace Golf_Chip_WinRT
         GolfChipSettings();
         
         Windows.Foundation.Collections.IObservableVector<Object> KnownDevices{ get; };
+        Windows.Foundation.Collections.IObservableVector<Object> DeviceSettings{ get; };
 
         Windows.UI.Xaml.Controls.ListView ResultsListView{ get; };
 

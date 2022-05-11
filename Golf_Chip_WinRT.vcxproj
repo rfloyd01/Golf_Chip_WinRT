@@ -112,10 +112,12 @@
       <DependentUpon>GolfChipSettings.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
+    <ClInclude Include="GolfChipSettingsDisplay.h" />
     <ClInclude Include="GolfChip_Files\GolfChip.h" />
     <ClInclude Include="GolfChip_Files\IMU.h" />
     <ClInclude Include="GolfChip_Files\Sensors\LSM9DS1.h" />
     <ClInclude Include="GolfChip_Files\Sensors\Sensor.h" />
+    <ClInclude Include="GolfChip_Files\Sensors\SensorSettings.h" />
     <ClInclude Include="MainPage.h">
       <DependentUpon>MainPage.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -150,10 +152,12 @@
       <DependentUpon>GolfChipSettings.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
+    <ClCompile Include="GolfChipSettingsDisplay.cpp" />
     <ClCompile Include="GolfChip_Files\GolfChip.cpp" />
     <ClCompile Include="GolfChip_Files\IMU.cpp" />
     <ClCompile Include="GolfChip_Files\Sensors\LSM9DS1.cpp" />
     <ClCompile Include="GolfChip_Files\Sensors\Sensor.cpp" />
+    <ClCompile Include="GolfChip_Files\Sensors\SensorSettings.cpp" />
     <ClCompile Include="MainPage.cpp">
       <DependentUpon>MainPage.xaml</DependentUpon>
       <SubType>Code</SubType>

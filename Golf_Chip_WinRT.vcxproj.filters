@@ -27,6 +27,12 @@
     <ClCompile Include="GolfChip_Files\Sensors\Sensor.cpp">
       <Filter>GolfChip_Files\Sensors</Filter>
     </ClCompile>
+    <ClCompile Include="GolfChip_Files\Sensors\SensorSettings.cpp">
+      <Filter>GolfChip_Files\Sensors</Filter>
+    </ClCompile>
+    <ClCompile Include="GolfChipSettingsDisplay.cpp">
+      <Filter>Pages</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -44,6 +50,12 @@
     </ClInclude>
     <ClInclude Include="GolfChip_Files\Sensors\Sensor.h">
       <Filter>GolfChip_Files\Sensors</Filter>
+    </ClInclude>
+    <ClInclude Include="GolfChip_Files\Sensors\SensorSettings.h">
+      <Filter>GolfChip_Files\Sensors</Filter>
+    </ClInclude>
+    <ClInclude Include="GolfChipSettingsDisplay.h">
+      <Filter>Pages</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
