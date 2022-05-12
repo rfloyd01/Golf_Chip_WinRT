@@ -55,10 +55,7 @@
 LSM9DS1Class::LSM9DS1Class(TwoWire& wire) :
   continuousMode(false), _wire(&wire)
 {
-  //initialize the settings byte array so that everything is blank
-  //TODO: Delete later
-  //for (int i = 0; i < 18; i++) sensor_settings[i] = 0x00;
-
+  //Reset all settings arrays 
   //18 bytes have been set aside for settings even though only 6 are necessary for
   //each sensor. This is just in case expansion is ever necessary.
   for (int i = 0; i < 18; i++)
@@ -95,10 +92,16 @@ int LSM9DS1Class::begin()
     return 0;
   }
 
-  //Acceleromter set up
+  //Fill out setting arrays with default settings
+  getCurrentSettings();
+
+  //Gyroscope set up
   writeRegister(LSM9DS1_ADDRESS, LSM9DS1_CTRL_REG1_G, 0x78); // 119 Hz, 2000 dps, 16 Hz BW
+
+  //Accelerometer set up
   writeRegister(LSM9DS1_ADDRESS, LSM9DS1_CTRL_REG6_XL, 0x70); // 119 Hz, 4G
 
+  //Magnetometer set up
   writeRegister(LSM9DS1_ADDRESS_M, LSM9DS1_CTRL_REG1_M, 0xb4); // Temperature compensation enable, medium performance, 20 Hz
   writeRegister(LSM9DS1_ADDRESS_M, LSM9DS1_CTRL_REG2_M, 0x00); // 4 Gauss
   writeRegister(LSM9DS1_ADDRESS_M, LSM9DS1_CTRL_REG3_M, 0x00); // Continuous conversion mode
@@ -293,6 +296,60 @@ int LSM9DS1Class::readRegisters(uint8_t slaveAddress, uint8_t address, uint8_t* 
   }
 
   return 1;
+}
+
+void LSM9DS1Class::getCurrentSettings()
+{
+  //Reads all registers that are tied to the settings arrays and populates
+  //the arrays with current sensor information
+  int registerValue = 0;
+
+  //Gyroscope Information
+  registerValue = readRegister(LSM9DS1_ADDRESS, LSM9DS1_CTRL_REG1_G);
+  gyr_settings[ODR] = (registerValue >> 5);
+  gyr_settings[FULLSCALE_RANGE] = ((registerValue & 0x18) >> 3);
+  gyr_settings[LPFILTER_FREQ] = (registerValue & 0x03);
+
+  registerValue = readRegister(LSM9DS1_ADDRESS, LSM9DS1_CTRL_REG2_G);
+  gyr_settings[FILTER_SETTINGS] &= 0xFC;
+  gyr_settings[FILTER_SETTINGS] |= (registerValue & 0x03);
+
+  registerValue = readRegister(LSM9DS1_ADDRESS, LSM9DS1_CTRL_REG3_G);
+  gyr_settings[POWER_MODE] = ((registerValue & 0x80) >> 7);
+  gyr_settings[FILTER_SETTINGS] &= 0x03;
+  gyr_settings[FILTER_SETTINGS] |= ((registerValue & 0x40) >> 4);
+  gyr_settings[HPFILTER_FREQ] = (registerValue & 0x0F);
+
+  //Accelerometer Information
+  registerValue = readRegister(LSM9DS1_ADDRESS, LSM9DS1_CTRL_REG6_XL);
+  acc_settings[ODR] = (registerValue >> 5);
+  acc_settings[FULLSCALE_RANGE] = ((registerValue & 0x18) >> 3);
+  acc_settings[FILTER_SETTINGS] &= 0x03;
+  acc_settings[FILTER_SETTINGS] |= (registerValue & 0x04);
+  acc_settings[LPFILTER_FREQ] = (registerValue & 0x03);
+  
+  registerValue = readRegister(LSM9DS1_ADDRESS, LSM9DS1_CTRL_REG7_XL);
+  acc_settings[FILTER_SETTINGS] &= 0x05;
+  acc_settings[FILTER_SETTINGS] |= ((registerValue & 0x80) >> 6);
+  acc_settings[HPFILTER_FREQ] = ((registerValue & 0x60) >> 5);
+  acc_settings[FILTER_SETTINGS] &= 0x06;
+  acc_settings[FILTER_SETTINGS] |= ((registerValue & 0x04) >> 2);
+
+  //Magnetometer Information
+  registerValue = readRegister(LSM9DS1_ADDRESS_M, LSM9DS1_CTRL_REG1_M);
+  mag_settings[POWER_MODE] |= ((registerValue & 0x60) >> 1);
+  mag_settings[ODR] = ((registerValue & 0x1E) >> 1);
+
+  registerValue = readRegister(LSM9DS1_ADDRESS_M, LSM9DS1_CTRL_REG2_M);
+  mag_settings[FULLSCALE_RANGE] = ((registerValue & 0x60) >> 5);
+  
+  registerValue = readRegister(LSM9DS1_ADDRESS_M, LSM9DS1_CTRL_REG3_M);
+  mag_settings[POWER_MODE] &= 0xF3;
+  mag_settings[POWER_MODE] |= ((registerValue & 0x03) << 2); 
+
+  registerValue = readRegister(LSM9DS1_ADDRESS_M, LSM9DS1_CTRL_REG4_M);
+  mag_settings[POWER_MODE] &= 0xFC;
+  mag_settings[POWER_MODE] |= ((registerValue & 0x0C) << 2);
 }
 
 int LSM9DS1Class::writeRegister(uint8_t slaveAddress, uint8_t address, uint8_t value)

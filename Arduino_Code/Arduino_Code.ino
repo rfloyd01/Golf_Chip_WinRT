@@ -38,7 +38,11 @@ void setup(void)
   Serial.begin(9600);
   pinMode(LED_BUILTIN, OUTPUT); //Setup onboard LED to show when BLE connection is succesful
 
+  /* Wait for the Serial Monitor */
+  //while (!Serial)
+
   //Initialize the IMU
+  Serial.println("Initializing the IMU!");
   if (!IMU.begin()) //initialize BLE and go to infinite loop if fail
   {
     Serial.println("Starting IMU Failed!");
@@ -83,10 +87,12 @@ void configCharacteristicWritten(BLEDevice central, BLECharacteristic characteri
 
 void loop(void)
 {
+  Serial.println("Initializing the IMU!");
   BLE.advertise(); //start advertising
   bool maintain_connection = 1;
   while (maintain_connection)
   {
+    Serial.println("Initializing the IMU!");
     BLEDevice central = BLE.central(); //Wait for BLE central to connect
     if (central)
     {

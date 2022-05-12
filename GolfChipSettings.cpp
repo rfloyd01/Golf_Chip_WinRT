@@ -423,15 +423,15 @@ namespace winrt::Golf_Chip_WinRT::implementation
                 GenericAttributeProfile::GattCharacteristicsResult characteristicResult = co_await service.GetCharacteristicsAsync();
 
                 //Cycle through the Characteristics until we find the information one.
-                int characteristicLocation = 0, informationCharacteristicLocation = 0;
+                int AccelerometerSettingCharacteristicLocation = 0, GyroscopeSettingCharacteristicLocation = 0, MagnetometerSettingCharacteristicLocation = 0;
                 for (int i = 0; i < characteristicResult.Characteristics().Size(); i++)
                 {
                     uint32_t c = characteristicResult.Characteristics().GetAt(i).Uuid().Data1;
-                    if (c == Constants::GolfChipSensorInformationCharacteristicUuid) informationCharacteristicLocation = i;
+                    if (c == Constants::GolfChipAccelerometerSettingsCharacteristicUuid) AccelerometerSettingCharacteristicLocation = i;
                 }
 
                 //Save the characteristic info in the shared section of the code
-                GlobalGolfChip::m_golfChip->setInformationCharacteristic(characteristicResult.Characteristics().GetAt(informationCharacteristicLocation));
+                GlobalGolfChip::m_golfChip->setInformationCharacteristic(characteristicResult.Characteristics().GetAt(AccelerometerSettingCharacteristicLocation));
 
                 NotifyUser(L"Succesfully connected to the device!", NotifyType::StatusMessage);
 

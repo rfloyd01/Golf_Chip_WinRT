@@ -57,13 +57,14 @@ class LSM9DS1Class {
     int readRegister(uint8_t slaveAddress, uint8_t address);
     int readRegisters(uint8_t slaveAddress, uint8_t address, uint8_t* data, size_t length);
     int writeRegister(uint8_t slaveAddress, uint8_t address, uint8_t value);
+    void getCurrentSettings();
 
   private:
     TwoWire* _wire;
     //uint8_t sensor_settings[18]; //TODO: Delete at some point
-    uint8_t acc_settings[6];
-    uint8_t gyr_settings[6];
-    uint8_t mag_settings[6];
+    uint8_t acc_settings[18];
+    uint8_t gyr_settings[18];
+    uint8_t mag_settings[18];
 
     /*
      * Some notes on the sensor settings array. The GYROSCOPE_FILTER_SETTINGS variable is a combination of a few different registers. Its 8 bits look

@@ -56,6 +56,9 @@ namespace winrt::Golf_Chip_WinRT
 		static constexpr guid GolfChipSensorDataServiceUuid{ 0x0000180c, 0x0000, 0x1000, { 0x80, 0x00, 0x00, 0x80, 0x5f, 0x9b, 0x34, 0xfb } }; // {0000180c-0000-1000-8000-00805f9b34fb}
 		static const uint32_t GolfChipSensorDataCharacteristicUuid{ 0x00002A58 };
 		static const uint32_t GolfChipSensorInformationCharacteristicUuid{ 0x00002A59 };
+		static const uint32_t GolfChipAccelerometerSettingsCharacteristicUuid{ 0x00002A5A };
+		static const uint32_t GolfChipGyroscopeSettingsCharacteristicUuid{ 0x00002A5B };
+		static const uint32_t GolfChipMagnetometerSettingsCharacteristicUuid{ 0x00002A5C };
 	};
 
 	struct GlobalGolfChip
