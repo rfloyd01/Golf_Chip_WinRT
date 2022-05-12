@@ -56,9 +56,12 @@ LSM9DS1Class::LSM9DS1Class(TwoWire& wire) :
   continuousMode(false), _wire(&wire)
 {
   //initialize the settings byte array so that everything is blank
-  for (int i = 0; i < 18; i++) sensor_settings[i] = 0x00;
+  //TODO: Delete later
+  //for (int i = 0; i < 18; i++) sensor_settings[i] = 0x00;
 
-  for (int i = 0; i < 6; i++)
+  //18 bytes have been set aside for settings even though only 6 are necessary for
+  //each sensor. This is just in case expansion is ever necessary.
+  for (int i = 0; i < 18; i++)
   {
     acc_settings[i] = 0x00;
     gyr_settings[i] = 0x00;
@@ -130,9 +133,19 @@ void LSM9DS1Class::end()
   _wire->end();
 }
 
-uint8_t* LSM9DS1Class::getSensorSettings()
+uint8_t* LSM9DS1Class::getAccelerometerSettings()
 {
-  return &sensor_settings[0];
+  return &acc_settings[0];
+}
+
+uint8_t* LSM9DS1Class::getGyroscopeSettings()
+{
+  return &gyr_settings[0];
+}
+
+uint8_t* LSM9DS1Class::getMagnetometerSettings()
+{
+  return &mag_settings[0];
 }
 
 int LSM9DS1Class::readAcceleration(float& x, float& y, float& z)
@@ -297,47 +310,59 @@ int LSM9DS1Class::writeRegister(uint8_t slaveAddress, uint8_t address, uint8_t v
   //that connect, as well as give the central devices the ability to change settings.
 
   //need separate switch statements for each slave device as some addresses overlap
+
+  //TODO: Delete all of the sensor_settings references at some point
   if (slaveAddress == LSM9DS1_ADDRESS)
   {
     switch(address)
     {
       case LSM9DS1_CTRL_REG1_G:
-        sensor_settings[3 * ODR + GYROSCOPE] = (value >> 5);
+        //sensor_settings[3 * ODR + GYROSCOPE] = (value >> 5);
         gyr_settings[ODR] = (value >> 5);
-        sensor_settings[3 * FULLSCALE_RANGE + GYROSCOPE] = ((value & 0x18) >> 3);
+        //sensor_settings[3 * FULLSCALE_RANGE + GYROSCOPE] = ((value & 0x18) >> 3);
         gyr_settings[FULLSCALE_RANGE] = ((value & 0x18) >> 3);
-        sensor_settings[3 * LPFILTER_FREQ + GYROSCOPE] = (value & 0x03);
+        //sensor_settings[3 * LPFILTER_FREQ + GYROSCOPE] = (value & 0x03);
         gyr_settings[LPFILTER_FREQ] = (value & 0x03);
         break;
       case LSM9DS1_CTRL_REG2_G:
-        sensor_settings[3 * FILTER_SETTINGS + GYROSCOPE] &= 0xFC; //first, zero out the existing 2 LSB
-        //gyr_settings[
-        sensor_settings[3 * FILTER_SETTINGS + GYROSCOPE] |= (value & 0x03); //set the new 2 LSB
-        //gyr_settings[
+        //sensor_settings[3 * FILTER_SETTINGS + GYROSCOPE] &= 0xFC; //first, zero out the existing 2 LSB
+        gyr_settings[FILTER_SETTINGS] &= 0xFC;
+        //sensor_settings[3 * FILTER_SETTINGS + GYROSCOPE] |= (value & 0x03); //set the new 2 LSB
+        gyr_settings[FILTER_SETTINGS] |= (value & 0x03);
         break;
       case LSM9DS1_CTRL_REG3_G:
-        sensor_settings[3 * POWER_MODE + GYROSCOPE] = ((value & 0x80) >> 7);
-        //gyr_settings[
-        sensor_settings[3 * FILTER_SETTINGS + GYROSCOPE] &= 0x03; //first, zero out everything but the 2 LSB
-        //gyr_settings[
-        sensor_settings[3 * FILTER_SETTINGS + GYROSCOPE] |= ((value & 0x40) >> 4); //then, add the new bit to the 3 LSB position
-        //gyr_settings[
-        sensor_settings[3 * HPFILTER_FREQ + GYROSCOPE] = (value & 0x0F);
-        //gyr_settings[
+        //sensor_settings[3 * POWER_MODE + GYROSCOPE] = ((value & 0x80) >> 7);
+        gyr_settings[POWER_MODE] = ((value & 0x80) >> 7);
+        //sensor_settings[3 * FILTER_SETTINGS + GYROSCOPE] &= 0x03; //first, zero out everything but the 2 LSB
+        gyr_settings[FILTER_SETTINGS] &= 0x03;
+        //sensor_settings[3 * FILTER_SETTINGS + GYROSCOPE] |= ((value & 0x40) >> 4); //then, add the new bit to the 3 LSB position
+        gyr_settings[FILTER_SETTINGS] |= ((value & 0x40) >> 4);
+        //sensor_settings[3 * HPFILTER_FREQ + GYROSCOPE] = (value & 0x0F);
+        gyr_settings[HPFILTER_FREQ] = (value & 0x0F);
         break;
       case LSM9DS1_CTRL_REG6_XL:
-        sensor_settings[3 * ODR + ACCELEROMETER] = (value >> 5);
-        sensor_settings[3 * FULLSCALE_RANGE + ACCELEROMETER] = ((value & 0x18) >> 3);
-        sensor_settings[3 * FILTER_SETTINGS + ACCELEROMETER] &= 0x03;//first, zero out the bit that will be changing (by removing everything but 2LSB)
-        sensor_settings[3 * FILTER_SETTINGS + ACCELEROMETER] |= (value & 0x04); //then add the new bit (it happens to be in the correct position already)
-        sensor_settings[3 * LPFILTER_FREQ + ACCELEROMETER] = (value & 0x03); //this setting is for the anti-aliasing filter
+        //sensor_settings[3 * ODR + ACCELEROMETER] = (value >> 5);
+        acc_settings[ODR] = (value >> 5);
+        //sensor_settings[3 * FULLSCALE_RANGE + ACCELEROMETER] = ((value & 0x18) >> 3);
+        acc_settings[FULLSCALE_RANGE] = ((value & 0x18) >> 3);
+        //sensor_settings[3 * FILTER_SETTINGS + ACCELEROMETER] &= 0x03;//first, zero out the bit that will be changing (by removing everything but 2LSB)
+        acc_settings[FILTER_SETTINGS] &= 0x03;
+        //sensor_settings[3 * FILTER_SETTINGS + ACCELEROMETER] |= (value & 0x04); //then add the new bit (it happens to be in the correct position already)
+        acc_settings[FILTER_SETTINGS] |= (value & 0x04);
+        //sensor_settings[3 * LPFILTER_FREQ + ACCELEROMETER] = (value & 0x03); //this setting is for the anti-aliasing filter
+        acc_settings[LPFILTER_FREQ] = (value & 0x03);
         break;
       case LSM9DS1_CTRL_REG7_XL:
-        sensor_settings[3 * FILTER_SETTINGS + ACCELEROMETER] &= 0x05;//first, zero out the bit that will be changing
-        sensor_settings[3 * FILTER_SETTINGS + ACCELEROMETER] |= ((value & 0x80) >> 6); //then add the new bit (right shift by 6 to get it to the 2LSB position)
-        sensor_settings[3 * HPFILTER_FREQ + ACCELEROMETER] = ((value & 0x60) >> 5);
-        sensor_settings[3 * FILTER_SETTINGS + ACCELEROMETER] &= 0x06;//first, zero out the bit that will be changing
-        sensor_settings[3 * FILTER_SETTINGS + ACCELEROMETER] |= ((value & 0x04) >> 2); //then add the new bit (right shift by 2 to get it to the 1LSB position)
+        //sensor_settings[3 * FILTER_SETTINGS + ACCELEROMETER] &= 0x05;//first, zero out the bit that will be changing
+        acc_settings[FILTER_SETTINGS] &= 0x05;
+        //sensor_settings[3 * FILTER_SETTINGS + ACCELEROMETER] |= ((value & 0x80) >> 6); //then add the new bit (right shift by 6 to get it to the 2LSB position)
+        acc_settings[FILTER_SETTINGS] |= ((value & 0x80) >> 6);
+        //sensor_settings[3 * HPFILTER_FREQ + ACCELEROMETER] = ((value & 0x60) >> 5);
+        acc_settings[HPFILTER_FREQ] = ((value & 0x60) >> 5);
+        //sensor_settings[3 * FILTER_SETTINGS + ACCELEROMETER] &= 0x06;//first, zero out the bit that will be changing
+        acc_settings[FILTER_SETTINGS] &= 0x06;
+        //sensor_settings[3 * FILTER_SETTINGS + ACCELEROMETER] |= ((value & 0x04) >> 2); //then add the new bit (right shift by 2 to get it to the 1LSB position)
+        acc_settings[FILTER_SETTINGS] |= ((value & 0x04) >> 2);
         break;
     }
   }
@@ -346,20 +371,28 @@ int LSM9DS1Class::writeRegister(uint8_t slaveAddress, uint8_t address, uint8_t v
     switch(address)
     {
       case LSM9DS1_CTRL_REG1_M:
-        sensor_settings[3 * POWER_MODE + MAGNETOMETER] &= 0xCF; //first, zero out MSB3 and MSB4
-        sensor_settings[3 * POWER_MODE + MAGNETOMETER] |= ((value & 0x60) >> 1 );//then add the two new bits
-        sensor_settings[3 * ODR + MAGNETOMETER] = ((value & 0x1E) >> 1); //this represents both the ODR and if FastODR mode is enabled
+        //sensor_settings[3 * POWER_MODE + MAGNETOMETER] &= 0xCF; //first, zero out MSB3 and MSB4
+        mag_settings[POWER_MODE] &= 0xCF;
+        //sensor_settings[3 * POWER_MODE + MAGNETOMETER] |= ((value & 0x60) >> 1 );//then add the two new bits
+        mag_settings[POWER_MODE] |= ((value & 0x60) >> 1);
+        //sensor_settings[3 * ODR + MAGNETOMETER] = ((value & 0x1E) >> 1); //this represents both the ODR and if FastODR mode is enabled
+        mag_settings[ODR] = ((value & 0x1E) >> 1);
         break;
       case LSM9DS1_CTRL_REG2_M:
-        sensor_settings[3 * FULLSCALE_RANGE + MAGNETOMETER] = ((value & 0x60) >> 5);
+        //sensor_settings[3 * FULLSCALE_RANGE + MAGNETOMETER] = ((value & 0x60) >> 5);
+        mag_settings[FULLSCALE_RANGE] = ((value & 0x60) >> 5);
         break;
       case LSM9DS1_CTRL_REG3_M:
-        sensor_settings[3 * POWER_MODE + MAGNETOMETER] &= 0xF3; //first, zero out bits LSB3 and LSB4
-        sensor_settings[3 * POWER_MODE + MAGNETOMETER] |= ((value & 0x03) << 2 );//then add the two new bits to the right location
+        //sensor_settings[3 * POWER_MODE + MAGNETOMETER] &= 0xF3; //first, zero out bits LSB3 and LSB4
+        mag_settings[POWER_MODE] &= 0xF3;
+        //sensor_settings[3 * POWER_MODE + MAGNETOMETER] |= ((value & 0x03) << 2 );//then add the two new bits to the right location
+        mag_settings[POWER_MODE] |= ((value & 0x03) << 2); 
         break;
       case LSM9DS1_CTRL_REG4_M:
-        sensor_settings[3 * POWER_MODE + MAGNETOMETER] &= 0xFC; //first, zero out the 2LSB
-        sensor_settings[3 * POWER_MODE + MAGNETOMETER] |= ((value & 0x0C) << 2 );//then add the two new bits to the right location
+        //sensor_settings[3 * POWER_MODE + MAGNETOMETER] &= 0xFC; //first, zero out the 2LSB
+        mag_settings[POWER_MODE] &= 0xFC;
+        //sensor_settings[3 * POWER_MODE + MAGNETOMETER] |= ((value & 0x0C) << 2 );//then add the two new bits to the right location
+        mag_settings[POWER_MODE] |= ((value & 0x0C) << 2);
         break;
     }
   }

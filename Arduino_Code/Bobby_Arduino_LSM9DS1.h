@@ -25,7 +25,10 @@ class LSM9DS1Class {
     int begin();
     void end();
 
-    uint8_t* getSensorSettings();
+    //Setting functions
+    uint8_t* getAccelerometerSettings();
+    uint8_t* getGyroscopeSettings();
+    uint8_t* getMagnetometerSettings();
 
     // Controls whether a FIFO is continuously filled, or a single reading is stored.
     // Defaults to one-shot.
@@ -57,7 +60,7 @@ class LSM9DS1Class {
 
   private:
     TwoWire* _wire;
-    uint8_t sensor_settings[18]; //This array holds data for 18 different settings for the sensor (each setting is represented by 8 bits)
+    //uint8_t sensor_settings[18]; //TODO: Delete at some point
     uint8_t acc_settings[6];
     uint8_t gyr_settings[6];
     uint8_t mag_settings[6];
