@@ -170,7 +170,7 @@ namespace winrt::Golf_Chip_WinRT::implementation
         EnumerateButton().Visibility(Visibility::Collapsed);
 
         //Populate the settings arrays
-        //PopulateSettingsVectors();
+        SetSettingVectors();
     }
 
     void GolfChipSettings::SetSettingVectors()
@@ -178,15 +178,19 @@ namespace winrt::Golf_Chip_WinRT::implementation
         //Accelerometer first
         auto accSettings = GlobalGolfChip::m_golfChip->getIMU()->getSensorSettings(SensorType::ACCELEROMETER);
         auto gyrSettings = GlobalGolfChip::m_golfChip->getIMU()->getSensorSettings(SensorType::GYROSCOPE);
+        auto magSettings = GlobalGolfChip::m_golfChip->getIMU()->getSensorSettings(SensorType::MAGNETOMETER);
 
         m_accName = winrt::to_hstring(GlobalGolfChip::m_golfChip->getIMU()->getSensor(SensorType::ACCELEROMETER)->getName());
         m_gyrName = winrt::to_hstring(GlobalGolfChip::m_golfChip->getIMU()->getSensor(SensorType::GYROSCOPE)->getName());
+        m_magName = winrt::to_hstring(GlobalGolfChip::m_golfChip->getIMU()->getSensor(SensorType::MAGNETOMETER)->getName());
 
-        OutputDebugStringW((L"Acc name = " + m_accName).c_str());
-        OutputDebugStringW((L"Gyr name = " + m_gyrName).c_str());
+        AccName().Text(m_accName);
+        GyrName().Text(m_gyrName);
+        MagName().Text(m_magName);
 
         for (int i = 0; i < accSettings.size(); i++)  m_accelerometerSettings.Append(make<GolfChipSettingsDisplay>(accSettings[i]));
         for (int i = 0; i < gyrSettings.size(); i++)  m_gyroscopeSettings.Append(make<GolfChipSettingsDisplay>(gyrSettings[i]));
+        for (int i = 0; i < magSettings.size(); i++)  m_magnetometerSettings.Append(make<GolfChipSettingsDisplay>(magSettings[i]));
     }
 #pragma endregion
 
@@ -441,16 +445,15 @@ namespace winrt::Golf_Chip_WinRT::implementation
                 //as well as the SensorSettings arrays on this page.
 
                 //TODO: Should put some confirmation that the characteristics are actually found before trying to read them
-                auto characteristicValue = co_await GlobalGolfChip::m_golfChip->getInformationCharacteristic().ReadValueAsync();
+                auto accCharacteristicValue = co_await GlobalGolfChip::m_golfChip->getInformationCharacteristic().ReadValueAsync();
                 auto gyroCharacteristicValue = co_await characteristicResult.Characteristics().GetAt(GyroscopeSettingCharacteristicLocation).ReadValueAsync();
+                auto magCharacteristicValue = co_await characteristicResult.Characteristics().GetAt(MagnetometerSettingCharacteristicLocation).ReadValueAsync();
 
-                auto characteristicDataReader = Windows::Storage::Streams::DataReader::FromBuffer(characteristicValue.Value());
+                auto characteristicDataReader = Windows::Storage::Streams::DataReader::FromBuffer(accCharacteristicValue.Value());
                 
                 GlobalGolfChip::m_golfChip->getIMU()->setSensor("LSM9DS1_ACC", characteristicDataReader);
                 GlobalGolfChip::m_golfChip->getIMU()->setSensor("LSM9DS1_GYR", Windows::Storage::Streams::DataReader::FromBuffer(gyroCharacteristicValue.Value()));
-
-                //Fill out the display settings vectors
-                SetSettingVectors();
+                GlobalGolfChip::m_golfChip->getIMU()->setSensor("LSM9DS1_MAG", Windows::Storage::Streams::DataReader::FromBuffer(magCharacteristicValue.Value()));
 
                 //After onnecting to the device, set the display to "settings mode" and stop the device watcher from enumerating.
                 DisplaySettingsMode();

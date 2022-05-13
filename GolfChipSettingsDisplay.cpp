@@ -123,6 +123,38 @@ namespace winrt::Golf_Chip_WinRT::implementation
 		case SensorSettingOptions::OM_ACC_AND_GYR: return L"Accelerometer + Gyroscope";
 		case SensorSettingOptions::OM_GYR_REGULAR: return L"Normal Mode";
 		case SensorSettingOptions::OM_GYR_LOW: return L"Low Power Mode";
+		case SensorSettingOptions::OM_MAG_LPXYZ_CC: return L"X/Y/Z Low Power, Continuous Conversion";
+		case SensorSettingOptions::OM_MAG_LPXYZ_SC: return L"X/Y/Z Low Power, Single Conversion";
+		case SensorSettingOptions::OM_MAG_LPXY_MPZ_CC: return L"X/Y Low Power, Z Medium Performance, Continuous Conversion";
+		case SensorSettingOptions::OM_MAG_LPXY_MPZ_SC: return L"X/Y Low Power, Z Medium Performance, Single Conversion";
+		case SensorSettingOptions::OM_MAG_LPXY_HPZ_CC: return L"X/Y Low Power, Z High Performance, Continuous Conversion";
+		case SensorSettingOptions::OM_MAG_LPXY_HPZ_SC: return L"X/Y Low Power, Z High Performance, Single Conversion";
+		case SensorSettingOptions::OM_MAG_LPXY_UPZ_CC: return L"X/Y Low Power, Z Ultra Performance, Continuous Conversion";
+		case SensorSettingOptions::OM_MAG_LPXY_UPZ_SC: return L"X/Y Low Power, Z Ultra Performance, Single Conversion";
+		case SensorSettingOptions::OM_MAG_MPXY_LPZ_CC: return L"X/Y Medium Performance, Z Low Power, Continuous Conversion";
+		case SensorSettingOptions::OM_MAG_MPXY_LPZ_SC: return L"X/Y Medium Performance, Z Low Power, Single Conversion";
+		case SensorSettingOptions::OM_MAG_MPXYZ_CC: return L"X/Y/Z Medium Performance, Continuous Conversion";
+		case SensorSettingOptions::OM_MAG_MPXYZ_SC: return L"X/Y/Z Medium Performance, Single Conversion";
+		case SensorSettingOptions::OM_MAG_MPXY_HPZ_CC: return L"X/Y Medium Performance, Z High Performance, Continuous Conversion";
+		case SensorSettingOptions::OM_MAG_MPXY_HPZ_SC: return L"X/Y Medium Performance, Z High Performance, Single Conversion";
+		case SensorSettingOptions::OM_MAG_MPXY_UPZ_CC: return L"X/Y Medium Performance, Z Ultra Performance, Continuous Conversion";
+		case SensorSettingOptions::OM_MAG_MPXY_UPZ_SC: return L"X/Y Medium Performance, Z Ultra Performance, Single Conversion";
+		case SensorSettingOptions::OM_MAG_HPXY_LPZ_CC: return L"X/Y High Performance, Z Low Power, Continuous Conversion";
+		case SensorSettingOptions::OM_MAG_HPXY_LPZ_SC: return L"X/Y High Performance, Z Low Power, Single Conversion";
+		case SensorSettingOptions::OM_MAG_HPXY_MPZ_CC: return L"X/Y High Performance, Z Medium Performance, Continuous Conversion";
+		case SensorSettingOptions::OM_MAG_HPXY_MPZ_SC: return L"X/Y High Performance, Z Medium Performance, Single Conversion";
+		case SensorSettingOptions::OM_MAG_HPXYZ_CC: return L"X/Y/Z High Performance, Continuous Conversion";
+		case SensorSettingOptions::OM_MAG_HPXYZ_SC: return L"X/Y/Z High Performance, Single Conversion";
+		case SensorSettingOptions::OM_MAG_HPXY_UPZ_CC: return L"X/Y High Performance, Z Ultra Performance, Continuous Conversion";
+		case SensorSettingOptions::OM_MAG_HPXY_UPZ_SC: return L"X/Y High Performance, Z Ultra Performance, Single Conversion";
+		case SensorSettingOptions::OM_MAG_UPXY_LPZ_CC: return L"X/Y Ultra Performance, Z Low Power, Continuous Conversion";
+		case SensorSettingOptions::OM_MAG_UPXY_LPZ_SC: return L"X/Y Ultra Performance, Z Low Power, Single Conversion";
+		case SensorSettingOptions::OM_MAG_UPXY_MPZ_CC: return L"X/Y Ultra Performance, Z Medium Performance, Continuous Conversion";
+		case SensorSettingOptions::OM_MAG_UPXY_MPZ_SC: return L"X/Y Ultra Performance, Z Medium Performance, Single Conversion";
+		case SensorSettingOptions::OM_MAG_UPXY_HPZ_CC: return L"X/Y Ultra Performance, Z High Performance, Continuous Conversion";
+		case SensorSettingOptions::OM_MAG_UPXY_HPZ_SC: return L"X/Y Ultra Performance, Z High Performance, Single Conversion";
+		case SensorSettingOptions::OM_MAG_UPXYZ_CC: return L"X/Y/Z Ultra Performance, Continuous Conversion";
+		case SensorSettingOptions::OM_MAG_UPXYZ_SC: return L"X/Y/Z Ultra Performance, Single Conversion";
         }
         return L"Sensor Option Not Found";
     }

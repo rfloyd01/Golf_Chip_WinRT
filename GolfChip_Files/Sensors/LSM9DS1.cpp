@@ -372,10 +372,7 @@ SensorSettingOptions LSM9DS1_GYR::getRawSetting(SensorSettingType sensorSetting)
 	}
 	else if (sensorSetting == SensorSettingType::GYR_FULLSCALE_RANGE)
 	{
-		//The LSM9DS1 accelerometer has 4 different options for the full-scale range.
-		//Oddly enough they don't go in order, the +/- 16G setting comes inbetween 2 and 4
-		//four some reason. This isn't a typo, it's how it's written in the manufacturer's
-		//data sheet
+		//The LSM9DS1 gyroscope has 4 different options for the full-scale range.
 
 		switch (raw_settings[1])
 		{
@@ -572,6 +569,147 @@ SensorSettingOptions LSM9DS1_GYR::getRawSetting(SensorSettingType sensorSetting)
 		{
 		case 0b0: return SensorSettingOptions::OM_GYR_REGULAR;
 		case 0b1: return SensorSettingOptions::OM_GYR_LOW;
+		}
+	}
+}
+
+//Magnetometer Functions
+LSM9DS1_MAG::LSM9DS1_MAG(winrt::Windows::Storage::Streams::DataReader inputData)
+{
+	//This is where all of the default settings for the sensor go
+	sensorType = SensorType::MAGNETOMETER;
+
+	//First copy and persist the raw data
+	for (int i = 0; i < 18; i++) raw_settings[i] = inputData.ReadByte();
+	name = "LSM9DS1"; //Set the name
+
+	//TODO: Currently I'm manually setting all of the possibleSettingOptions vectors. I should utilize the chained
+	//enums to do this manually
+
+	//setting creation
+	//Operating Mode (*note, there are a lot of operating modes for the magnetometer. Ultimately I may lock X, Y and Z axis
+	//performance to be equal which will greatly cut down on the options)
+	SensorSettings OperatingMode;
+	OperatingMode.sensorSettingType = SensorSettingType::OPERATING_MODE;
+	OperatingMode.possibleSettingOptions = { SensorSettingOptions::OM_MAG_LPXYZ_CC, SensorSettingOptions::OM_MAG_LPXYZ_SC, SensorSettingOptions::OM_MAG_LPXY_MPZ_CC, SensorSettingOptions::OM_MAG_LPXY_MPZ_SC, SensorSettingOptions::OM_MAG_LPXY_HPZ_CC, SensorSettingOptions::OM_MAG_LPXY_HPZ_SC,
+		SensorSettingOptions::OM_MAG_LPXY_UPZ_CC, SensorSettingOptions::OM_MAG_LPXY_UPZ_SC, SensorSettingOptions::OM_MAG_MPXY_LPZ_CC, SensorSettingOptions::OM_MAG_MPXY_LPZ_SC, SensorSettingOptions::OM_MAG_MPXYZ_CC, SensorSettingOptions::OM_MAG_MPXYZ_SC,
+		SensorSettingOptions::OM_MAG_MPXY_HPZ_CC, SensorSettingOptions::OM_MAG_MPXY_HPZ_SC, SensorSettingOptions::OM_MAG_MPXY_UPZ_CC, SensorSettingOptions::OM_MAG_MPXY_UPZ_SC, SensorSettingOptions::OM_MAG_HPXY_LPZ_CC, SensorSettingOptions::OM_MAG_HPXY_LPZ_SC,
+		SensorSettingOptions::OM_MAG_HPXY_MPZ_CC, SensorSettingOptions::OM_MAG_HPXY_MPZ_SC, SensorSettingOptions::OM_MAG_HPXYZ_CC, SensorSettingOptions::OM_MAG_HPXYZ_SC, SensorSettingOptions::OM_MAG_HPXY_UPZ_CC, SensorSettingOptions::OM_MAG_HPXY_UPZ_SC,
+		SensorSettingOptions::OM_MAG_UPXY_LPZ_CC, SensorSettingOptions::OM_MAG_UPXY_LPZ_SC, SensorSettingOptions::OM_MAG_UPXY_MPZ_CC, SensorSettingOptions::OM_MAG_UPXY_MPZ_SC, SensorSettingOptions::OM_MAG_UPXY_HPZ_CC, SensorSettingOptions::OM_MAG_UPXY_HPZ_SC,
+		SensorSettingOptions::OM_MAG_UPXYZ_CC, SensorSettingOptions::OM_MAG_UPXYZ_SC };
+	OperatingMode.currentSettingOption = getRawSetting(SensorSettingType::OPERATING_MODE);
+	sensorSettings.push_back(OperatingMode);
+
+	//Output Date Rate
+	SensorSettings OutputDataRate;
+	OutputDataRate.sensorSettingType = SensorSettingType::OUTPUT_DATA_RATE;
+	OutputDataRate.possibleSettingOptions = { SensorSettingOptions::ODR_0_625_HZ, SensorSettingOptions::ODR_1_25_HZ, SensorSettingOptions::ODR_2_5_HZ, SensorSettingOptions::ODR_5_HZ, SensorSettingOptions::ODR_10_HZ, SensorSettingOptions::ODR_20_HZ, SensorSettingOptions::ODR_40_HZ, SensorSettingOptions::ODR_80_HZ };
+	OutputDataRate.currentSettingOption = getRawSetting(SensorSettingType::OUTPUT_DATA_RATE);
+	sensorSettings.push_back(OutputDataRate);
+
+	//Full-scale Range
+	SensorSettings FullscaleRange;
+	FullscaleRange.sensorSettingType = SensorSettingType::MAG_FULLSCALE_RANGE;
+	FullscaleRange.possibleSettingOptions = { SensorSettingOptions::MAG_FSR_N_A, SensorSettingOptions::MAG_FSR_4_GA, SensorSettingOptions::MAG_FSR_8_GA, SensorSettingOptions::MAG_FSR_12_GA, SensorSettingOptions::MAG_FSR_16_GA };
+	FullscaleRange.currentSettingOption = getRawSetting(SensorSettingType::MAG_FULLSCALE_RANGE);
+	sensorSettings.push_back(FullscaleRange);
+
+	//The magnetometer doesn't have any filter settings that can be altered
+}
+
+double LSM9DS1_MAG::getConversionFactor()
+{
+	//Returns the Acceleration sensitivity in gauss/LSB, used by the IMU class
+	if (getCurrentSettingOption(SensorSettingType::GYR_FULLSCALE_RANGE) == SensorSettingOptions::MAG_FSR_4_GA) return .00014;
+	else if (getCurrentSettingOption(SensorSettingType::GYR_FULLSCALE_RANGE) == SensorSettingOptions::MAG_FSR_8_GA) return .00029;
+	else if (getCurrentSettingOption(SensorSettingType::GYR_FULLSCALE_RANGE) == SensorSettingOptions::MAG_FSR_12_GA) return .00043;
+	else if (getCurrentSettingOption(SensorSettingType::GYR_FULLSCALE_RANGE) == SensorSettingOptions::MAG_FSR_16_GA) return .00058;
+	else return -1; //shouldn't be possible to have another option, so return this to indicate an error
+}
+
+SensorSettingOptions LSM9DS1_MAG::getRawSetting(SensorSettingType sensorSetting)
+{
+	//The LSM9DS1 Gyroscope raw setting byte array has the following form:
+	//byte 0: ODR setting
+	//byte 1: Full-scale range setting
+	//byte 2: Not used
+	//byte 3: Not Used
+	//byte 4: Not Used
+	//byte 5: Operating Mode
+
+	if (sensorSetting == SensorSettingType::OUTPUT_DATA_RATE)
+	{
+		//The ODR options will depend on whether or not the Gyroscope of the LSM9DS1 is also active
+		switch (raw_settings[0])
+		{
+		case 0b0000: return SensorSettingOptions::ODR_0_625_HZ;
+		case 0b0001: return SensorSettingOptions::ODR_1_25_HZ;
+		case 0b0010: return SensorSettingOptions::ODR_2_5_HZ;
+		case 0b0011: return SensorSettingOptions::ODR_5_HZ;
+		case 0b0100: return SensorSettingOptions::ODR_10_HZ;
+		case 0b0101: return SensorSettingOptions::ODR_20_HZ;
+		case 0b0110: return SensorSettingOptions::ODR_40_HZ;
+		case 0b0111: return SensorSettingOptions::ODR_80_HZ;
+		case 0b1000: return SensorSettingOptions::ODR_FAST;
+		default: return SensorSettingOptions::ODR_N_A;
+		}
+	}
+	else if (sensorSetting == SensorSettingType::MAG_FULLSCALE_RANGE)
+	{
+		//The LSM9DS1 magnetometer has 4 different options for the full-scale range.
+
+		switch (raw_settings[1])
+		{
+		case 0b00: return SensorSettingOptions::MAG_FSR_4_GA;
+		case 0b01: return SensorSettingOptions::MAG_FSR_8_GA;
+		case 0b10: return SensorSettingOptions::MAG_FSR_12_GA;
+		case 0b11: return SensorSettingOptions::MAG_FSR_16_GA;
+		default: return SensorSettingOptions::MAG_FSR_N_A;
+		}
+	}
+	else if (sensorSetting == SensorSettingType::OPERATING_MODE)
+	{
+		//The LSM9DS1 magnetometer has 32 different operating modes. The reason for this
+		//is because the X+Y axes can have their power level set independently from the Z
+		//axis, and each axis set has 4 power levels. Furthermore, the magnetometer can
+		//be set to read in Single or Continuous conversion mode. 4 * 4 * 2 = 32. In the
+		//future I might force the X, Y and Z axes to all share the same power level which
+		//would bring the total amount of options all the ways down from 32 to 8 which is
+		//more reasonable.
+		switch (raw_settings[5])
+		{
+		default: return SensorSettingOptions::OM_MAG_LPXYZ_CC;
+		case 0x000001: return SensorSettingOptions::OM_MAG_LPXYZ_SC;
+		case 0x000100: return SensorSettingOptions::OM_MAG_LPXY_MPZ_CC;
+		case 0x000101: return SensorSettingOptions::OM_MAG_LPXY_MPZ_SC;
+		case 0x001000: return SensorSettingOptions::OM_MAG_LPXY_HPZ_CC;
+		case 0x001001: return SensorSettingOptions::OM_MAG_LPXY_HPZ_SC;
+		case 0x001100: return SensorSettingOptions::OM_MAG_LPXY_UPZ_CC;
+		case 0x001101: return SensorSettingOptions::OM_MAG_LPXY_UPZ_SC;
+		case 0x010000: return SensorSettingOptions::OM_MAG_MPXY_LPZ_CC;
+		case 0x010001: return SensorSettingOptions::OM_MAG_MPXY_LPZ_SC;
+		case 0x010100: return SensorSettingOptions::OM_MAG_MPXYZ_CC;
+		case 0x010101: return SensorSettingOptions::OM_MAG_MPXYZ_SC;
+		case 0x011000: return SensorSettingOptions::OM_MAG_MPXY_HPZ_CC;
+		case 0x011001: return SensorSettingOptions::OM_MAG_MPXY_HPZ_SC;
+		case 0x011100: return SensorSettingOptions::OM_MAG_MPXY_UPZ_CC;
+		case 0x011101: return SensorSettingOptions::OM_MAG_MPXY_UPZ_SC;
+		case 0x100000: return SensorSettingOptions::OM_MAG_HPXY_LPZ_CC;
+		case 0x100001: return SensorSettingOptions::OM_MAG_HPXY_LPZ_SC;
+		case 0x100100: return SensorSettingOptions::OM_MAG_HPXY_MPZ_CC;
+		case 0x100101: return SensorSettingOptions::OM_MAG_HPXY_MPZ_SC;
+		case 0x101000: return SensorSettingOptions::OM_MAG_HPXYZ_CC;
+		case 0x101001: return SensorSettingOptions::OM_MAG_HPXYZ_SC;
+		case 0x101100: return SensorSettingOptions::OM_MAG_HPXY_UPZ_CC;
+		case 0x101101: return SensorSettingOptions::OM_MAG_HPXY_UPZ_SC;
+		case 0x110000: return SensorSettingOptions::OM_MAG_UPXY_LPZ_CC;
+		case 0x110001: return SensorSettingOptions::OM_MAG_UPXY_LPZ_SC;
+		case 0x110100: return SensorSettingOptions::OM_MAG_UPXY_MPZ_CC;
+		case 0x110101: return SensorSettingOptions::OM_MAG_UPXY_MPZ_SC;
+		case 0x111000: return SensorSettingOptions::OM_MAG_UPXY_HPZ_CC;
+		case 0x111001: return SensorSettingOptions::OM_MAG_UPXY_HPZ_SC;
+		case 0x111100: return SensorSettingOptions::OM_MAG_UPXYZ_CC;
+		case 0x111101: return SensorSettingOptions::OM_MAG_UPXYZ_SC;
 		}
 	}
 }

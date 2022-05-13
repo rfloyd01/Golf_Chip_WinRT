@@ -25,6 +25,7 @@ enum class SensorSettingOptions
 	//(*note) if there are more than 256 ODR settings then the (int) values
 	//in the SensorSettings enum class will need to be updated
 	ODR_N_A = (int)SensorSettingType::OUTPUT_DATA_RATE,
+	ODR_FAST,
 	ODR_0_625_HZ,
 	ODR_1_25_HZ,
 	ODR_2_5_HZ,
@@ -147,6 +148,42 @@ enum class SensorSettingOptions
 	//LSM9DS1 Gyroscope Operating Modes
 	OM_GYR_REGULAR,
 	OM_GYR_LOW,
+
+    //LSM9DS1 Magnetometer Operating Modes
+    //(*note - there are a lot of modes here, I might ultimately lock the X, Y and Z axis performance
+	//to be equal to eachother which will cut down on the total options)
+	OM_MAG_LPXYZ_CC,
+	OM_MAG_LPXYZ_SC,
+	OM_MAG_LPXY_MPZ_CC,
+	OM_MAG_LPXY_MPZ_SC,
+	OM_MAG_LPXY_HPZ_CC,
+	OM_MAG_LPXY_HPZ_SC,
+	OM_MAG_LPXY_UPZ_CC,
+	OM_MAG_LPXY_UPZ_SC,
+	OM_MAG_MPXY_LPZ_CC,
+	OM_MAG_MPXY_LPZ_SC,
+	OM_MAG_MPXYZ_CC,
+	OM_MAG_MPXYZ_SC,
+	OM_MAG_MPXY_HPZ_CC,
+	OM_MAG_MPXY_HPZ_SC,
+	OM_MAG_MPXY_UPZ_CC,
+	OM_MAG_MPXY_UPZ_SC,
+	OM_MAG_HPXY_LPZ_CC,
+	OM_MAG_HPXY_LPZ_SC,
+	OM_MAG_HPXY_MPZ_CC,
+	OM_MAG_HPXY_MPZ_SC,
+	OM_MAG_HPXYZ_CC,
+	OM_MAG_HPXYZ_SC,
+	OM_MAG_HPXY_UPZ_CC,
+	OM_MAG_HPXY_UPZ_SC,
+	OM_MAG_UPXY_LPZ_CC,
+	OM_MAG_UPXY_LPZ_SC,
+	OM_MAG_UPXY_MPZ_CC,
+	OM_MAG_UPXY_MPZ_SC,
+	OM_MAG_UPXY_HPZ_CC,
+	OM_MAG_UPXY_HPZ_SC,
+	OM_MAG_UPXYZ_CC,
+	OM_MAG_UPXYZ_SC,
 
 	//Very last option (used to terminate list, as well as act as a null value)
 	LAST

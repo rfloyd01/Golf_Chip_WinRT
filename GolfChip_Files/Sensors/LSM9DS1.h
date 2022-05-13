@@ -30,9 +30,9 @@ private:
 class LSM9DS1_MAG : public Sensor
 {
 public:
-	LSM9DS1_MAG(winrt::Windows::Storage::Streams::DataReader inputData) {}
-	double getConversionFactor() { return 0; }
+	LSM9DS1_MAG(winrt::Windows::Storage::Streams::DataReader inputData);
+	double getConversionFactor();
 
 private:
-	SensorSettingOptions getRawSetting(SensorSettingType sensorSetting) { return SensorSettingOptions::ACC_FSR_16_G; }
+	SensorSettingOptions getRawSetting(SensorSettingType sensorSetting);
 };

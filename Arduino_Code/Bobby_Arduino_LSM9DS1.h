@@ -81,10 +81,40 @@ class LSM9DS1Class {
      * GYR Settings array options
      * Byte 0 (ODR Settings): 0x000 (off), 0x001 (14.9Hz), 0x010 (59.5 Hz), 0x011 (119 Hz), 0x100 (238 Hz), 0x101 (476 Hz), 0x110 (952 Hz)
      * Byte 1 (Fullscale Range Settings): 0x00 (+/- 245 deg/s), 0x01 (+/- 500 deg/s), 0x11 (+/- 2000 deg/s)
-     * Byte 2 (Filter Settings [These are confusing in the documentation and should be verified]): 0x000 (LPF1 Only), 0x001, 0x010, 0x100, 0x101 (LPF1 and HPF), 0x110
-     * Byte 3 (High Pass Filter Frequency): 0x00 (408 Hz), 0x01 (211 Hz), 0x10 (105 Hz), 0x11 (50 Hz)
-     * Byte 4 (Low Pass Filter Frequency): 0x00 (ODR/50), 0x01 (ODR/100), 0x10 (ODR/9), 0x11 (ODR/400)
-     * Byte 5 (Power/Mode Settings): 0x0 (Accelerometer only), 0x1 (Accelerometer and Gyroscope active)
+     * Byte 2 (Filter Settings [These are confusing in the documentation and should be verified]): 0x000 (LPF1 Only), 0x010 (LPF1 and LPF2), 0x101 (LPF1 and HPF), 0x111 (LPF1, LPF2 and HPF)
+     * Byte 3 (High Pass Filter Frequency): 0x0000 (1Hz/4Hz/8Hz/15Hz/30Hz/57Hz ascending with ODR),
+     *                                      0x0001 (.5Hz/2Hz/4Hz/8Hz/15Hz/30Hz ascending with ODR),
+     *                                      0x0010 (.2Hz/1Hz/2Hz/4Hz/8Hz/15Hz ascending with ODR),
+     *                                      0x0011 (.1Hz/.5Hz/1Hz/2Hz/4Hz/8Hz ascending with ODR),
+     *                                      0x0100 (.05Hz/.2Hz/.5Hz/1Hz/2Hz/4Hz ascending with ODR),
+     *                                      0x0101 (.02Hz/.1Hz/.2Hz/.5Hz/1Hz/2Hz ascending with ODR),
+     *                                      0x0110 (.01Hz/.05Hz/.1Hz/.2Hz/.5Hz/1Hz ascending with ODR),
+     *                                      0x0111 (.005Hz/.02Hz/.05Hz/.1Hz/.2Hz/.5Hz ascending with ODR),
+     *                                      0x1000 (.002Hz/.01Hz/.02Hz/.05Hz/.1Hz/.2Hz ascending with ODR),
+     *                                      0x1001 (.001Hz/.005Hz/.01Hz/.02Hz/.05Hz/.1Hz ascending with ODR)
+     * Byte 4 (Low Pass Filter Frequency): 0x00 (0Hz/16Hz/14Hz/14Hz/21Hz/33Hz ascending with ODR),
+     *                                     0x01 (0Hz/16Hz/31Hz/29Hz/28Hz/40Hz ascending with ODR),
+     *                                     0x10 (0Hz/16Hz/31Hz/63Hz/57Hz/58Hz ascending with ODR),
+     *                                     0x11 (0Hz/16Hz/31Hz/78Hz/100Hz/100Hz ascending with ODR)
+     * Byte 5 (Power/Mode Settings): 0x0 (Normal Operating Mode), 0x1 (Low Power Mode)
+     * Bytes 6-17 are currently not used and set at 0x00
+     */
+
+     /*
+     * MAG Settings array options
+     * Byte 0 (ODR Settings): 0x0000 (0.625 Hz), 0x0001 (1.25 Hz), 0x0010 (2.5 Hz), 0x0011 (5 Hz), 0x0100 (10 Hz), 0x0101 (20 Hz), 0x0110 (40 Hz), 0x0111 (80 Hz), 0x1000 (Fast ODR Mode, not sure what this entails, need to test)
+     * Byte 1 (Fullscale Range Settings): 0x00 (+/- 4 Gauss), 0x01 (+/- 8 Gauss), 0x10 (+/- 12 Gauss), 0x11 (+/- 16 Gauss)
+     * Byte 2 (Filter Settings): 0x0 (Currently no filter settings to adjust)
+     * Byte 3 (High Pass Filter Frequency): 0x0 (Currently no filter settings to adjust)
+     * Byte 4 (Low Pass Filter Frequency): 0x0 (Currently no filter settings to adjust)
+     * Byte 5 (Power/Mode Settings): 0x000000 (Low Power XYZ, Continuous Conversion), 0x000100 (Low Power XY, Medium Performance Z, Continuous Conversion), 0x001000 (Low Power XY, High Performance Z, Continuous Conversion), 0x001100 (Low Power XY, Ultra Performance Z, Continuous Conversion),
+     *                               0x000001 (Low Power XYZ, Single Conversion), 0x000101 (Low Power XY, Medium Performance Z, Single Conversion), 0x001001 (Low Power XY, High Performance Z, Single Conversion), 0x001101 (Low Power XY, Ultra Performance Z, Single Conversion),
+     *                               0x010000 (Medium Performance XY, Low Power Z, Continuous Conversion), 0x010100 (Medium Performance XY, Medium Performance Z, Continuous Conversion), 0x011000 (Medium Performance XY, High Performance Z, Continuous Conversion), 0x011100 (Medium Performance XY, Ultra Performance Z, Continuous Conversion),
+     *                               0x010001 (Medium Performance XY, Low Power Z, Single Conversion), 0x010101 (Medium Performance XY, Medium Performance Z, Single Conversion), 0x011001 (Medium Performance XY, High Performance Z, Single Conversion), 0x011101 (Medium Performance XY, Ultra Performance Z, Single Conversion),
+     *                               0x100000 (High Performance XY, Low Power Z, Continuous Conversion), 0x100100 (High Performance XY, Medium Performance Z, Continuous Conversion), 0x101000 (High Performance XY, High Performance Z, Continuous Conversion), 0x101100 (High Performance XY, Ultra Performance Z, Continuous Conversion),
+     *                               0x100001 (High Performance XY, Low Power Z, Single Conversion), 0x100101 (High Performance XY, Medium Performance Z, Single Conversion), 0x101001 (High Performance XY, High Performance Z, Single Conversion), 0x101101 (High Performance XY, Ultra Performance Z, Single Conversion),
+     *                               0x110000 (Ultra Performance  XY, Low Power Z, Continuous Conversion), 0x110100 (Ultra Performance  XY, Medium Performance Z, Continuous Conversion), 0x111000 (Ultra Performance  XY, High Performance Z, Continuous Conversion), 0x111100 (Ultra Performance  XY, Ultra Performance Z, Continuous Conversion),
+     *                               0x110001 (Ultra Performance  XY, Low Power Z, Single Conversion), 0x110101 (Ultra Performance  XY, Medium Performance Z, Single Conversion), 0x111001 (Ultra Performance  XY, High Performance Z, Single Conversion), 0x111101 (Ultra Performance  XY, Ultra Performance Z, Single Conversion),
      * Bytes 6-17 are currently not used and set at 0x00
      */
 
