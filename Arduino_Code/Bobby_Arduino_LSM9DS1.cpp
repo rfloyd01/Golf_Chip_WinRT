@@ -92,9 +92,6 @@ int LSM9DS1Class::begin()
     return 0;
   }
 
-  //Fill out setting arrays with default settings
-  getCurrentSettings();
-
   //Gyroscope set up
   writeRegister(LSM9DS1_ADDRESS, LSM9DS1_CTRL_REG1_G, 0x78); // 119 Hz, 2000 dps, 16 Hz BW
 
@@ -105,6 +102,9 @@ int LSM9DS1Class::begin()
   writeRegister(LSM9DS1_ADDRESS_M, LSM9DS1_CTRL_REG1_M, 0xb4); // Temperature compensation enable, medium performance, 20 Hz
   writeRegister(LSM9DS1_ADDRESS_M, LSM9DS1_CTRL_REG2_M, 0x00); // 4 Gauss
   writeRegister(LSM9DS1_ADDRESS_M, LSM9DS1_CTRL_REG3_M, 0x00); // Continuous conversion mode
+
+  //Get the rest of the default settings which weren't set with the above lines
+  getCurrentSettings();
 
   return 1;
 }
@@ -321,6 +321,8 @@ void LSM9DS1Class::getCurrentSettings()
   gyr_settings[HPFILTER_FREQ] = (registerValue & 0x0F);
 
   //Accelerometer Information
+  if (gyr_settings[ODR] != 0x00) acc_settings[POWER_MODE] = 0x01; //Acc + Gyro mode active
+
   registerValue = readRegister(LSM9DS1_ADDRESS, LSM9DS1_CTRL_REG6_XL);
   acc_settings[ODR] = (registerValue >> 5);
   acc_settings[FULLSCALE_RANGE] = ((registerValue & 0x18) >> 3);
@@ -337,6 +339,7 @@ void LSM9DS1Class::getCurrentSettings()
 
   //Magnetometer Information
   registerValue = readRegister(LSM9DS1_ADDRESS_M, LSM9DS1_CTRL_REG1_M);
+  mag_settings[POWER_MODE] &= 0xCF;
   mag_settings[POWER_MODE] |= ((registerValue & 0x60) >> 1);
   mag_settings[ODR] = ((registerValue & 0x1E) >> 1);
 

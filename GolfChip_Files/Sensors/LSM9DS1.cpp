@@ -2,13 +2,15 @@
 #include "LSM9DS1.h"
 #include "SensorSettings.h"
 
-LSM9DS1_ACC::LSM9DS1_ACC(uint8_t* defaultSettings)
+//Accelerometer Functions
+LSM9DS1_ACC::LSM9DS1_ACC(winrt::Windows::Storage::Streams::DataReader inputData)
 {
 	//This is where all of the default settings for the sensor go
 	sensorType = SensorType::ACCELEROMETER;
 
-	rawSettings = defaultSettings; //these are the current settings read straight from the BLE Characteristic
-	name = "LSM9DS1";
+	//First copy and persist the raw data
+	for (int i = 0; i < 18; i++) raw_settings[i] = inputData.ReadByte();
+	name = "LSM9DS1"; //Set the name
 
 	//TODO: Currently I'm manually setting all of the possibleSettingOptions vectors. I should utilize the chained
 	//enums to do this manually
@@ -39,14 +41,14 @@ LSM9DS1_ACC::LSM9DS1_ACC(uint8_t* defaultSettings)
 	//Filter General Settings
 	SensorSettings FilterSettings;
 	FilterSettings.sensorSettingType = SensorSettingType::FILTER_SETTINGS;
-	FilterSettings.possibleSettingOptions = { SensorSettingOptions::FS_LSM9DS1_ACC_AUTO_NO_FILTERS, SensorSettingOptions::FS_LSM9DS1_ACC_MANUAL_NO_FILTERS, SensorSettingOptions::FS_LSM9DS1_ACC_AUTO_LPF2, SensorSettingOptions::FS_LSM9DS1_ACC_MANUAL_LPF2, SensorSettingOptions::FS_LSM9DS1_ACC_AUTO_HPF, SensorSettingOptions::FS_LSM9DS1_ACC_MANUAL_HPF, };
+	FilterSettings.possibleSettingOptions = { SensorSettingOptions::FS_LSM9DS1_ACC_AUTO_NO_FILTERS, SensorSettingOptions::FS_LSM9DS1_ACC_MANUAL_NO_FILTERS, SensorSettingOptions::FS_LSM9DS1_ACC_AUTO_LPF2, SensorSettingOptions::FS_LSM9DS1_ACC_MANUAL_LPF2, SensorSettingOptions::FS_LSM9DS1_ACC_AUTO_HPF, SensorSettingOptions::FS_LSM9DS1_ACC_MANUAL_HPF };
 	FilterSettings.currentSettingOption = getRawSetting(SensorSettingType::FILTER_SETTINGS);
 	sensorSettings.push_back(FilterSettings);
 
 	//High-pass Filter Frequency Setting (the options depend on wheter or not the HPF is actually turned on)
 	SensorSettings HPFFreq;
 	HPFFreq.sensorSettingType = SensorSettingType::HIGH_PASS_FILTER_FREQ;
-	if (*(rawSettings + 2) & 0x1)
+	if (raw_settings[2] & 0x1)
 	{
 		HPFFreq.possibleSettingOptions = { SensorSettingOptions::HPF_ODR_OVER_50_HZ, SensorSettingOptions::HPF_ODR_OVER_100_HZ, SensorSettingOptions::HPF_ODR_OVER_9_HZ, SensorSettingOptions::HPF_ODR_OVER_400_HZ };
 		HPFFreq.currentSettingOption = getRawSetting(SensorSettingType::HIGH_PASS_FILTER_FREQ);
@@ -61,7 +63,7 @@ LSM9DS1_ACC::LSM9DS1_ACC(uint8_t* defaultSettings)
 	//Low-pass Filter Frequency Setting (the options depend on wheter or not the LPF is in manual or auto mode)
 	SensorSettings LPFFreq;
 	LPFFreq.sensorSettingType = SensorSettingType::LOW_PASS_FILTER_FREQ;
-	if (*(rawSettings + 2) & 0x100)
+	if (raw_settings[2] & 0x100)
 	{
 		LPFFreq.possibleSettingOptions = { SensorSettingOptions::LPF_408_HZ, SensorSettingOptions::LPF_211_HZ, SensorSettingOptions::LPF_105_HZ, SensorSettingOptions::LPF_50_HZ };
 	}
@@ -105,27 +107,27 @@ SensorSettingOptions LSM9DS1_ACC::getRawSetting(SensorSettingType sensorSetting)
 		//The ODR options will depend on whether or not the Gyroscope of the LSM9DS1 is also active
 		if (GyroActive())
 		{
-			switch (*rawSettings)
+			switch (raw_settings[0])
 			{
-			case 0x001: return SensorSettingOptions::ODR_10_HZ;
-			case 0x010: return SensorSettingOptions::ODR_50_HZ;
-			case 0x011: return SensorSettingOptions::ODR_119_HZ;
-			case 0x100: return SensorSettingOptions::ODR_238_HZ;
-			case 0x101: return SensorSettingOptions::ODR_476_HZ;
-			case 0x110: return SensorSettingOptions::ODR_952_HZ;
+			case 0b001: return SensorSettingOptions::ODR_10_HZ;
+			case 0b010: return SensorSettingOptions::ODR_50_HZ;
+			case 0b011: return SensorSettingOptions::ODR_119_HZ;
+			case 0b100: return SensorSettingOptions::ODR_238_HZ;
+			case 0b101: return SensorSettingOptions::ODR_476_HZ;
+			case 0b110: return SensorSettingOptions::ODR_952_HZ;
 			default: return SensorSettingOptions::ODR_N_A;
 			}
 		}
 		else
 		{
-			switch (*rawSettings)
+			switch (raw_settings[0])
 			{
-			case 0x001: return SensorSettingOptions::ODR_14_9_HZ;
-			case 0x010: return SensorSettingOptions::ODR_59_5_HZ;
-			case 0x011: return SensorSettingOptions::ODR_119_HZ;
-			case 0x100: return SensorSettingOptions::ODR_238_HZ;
-			case 0x101: return SensorSettingOptions::ODR_476_HZ;
-			case 0x110: return SensorSettingOptions::ODR_952_HZ;
+			case 0b001: return SensorSettingOptions::ODR_14_9_HZ;
+			case 0b010: return SensorSettingOptions::ODR_59_5_HZ;
+			case 0b011: return SensorSettingOptions::ODR_119_HZ;
+			case 0b100: return SensorSettingOptions::ODR_238_HZ;
+			case 0b101: return SensorSettingOptions::ODR_476_HZ;
+			case 0b110: return SensorSettingOptions::ODR_952_HZ;
 			default: return SensorSettingOptions::ODR_N_A;
 			}
 		}
@@ -138,12 +140,12 @@ SensorSettingOptions LSM9DS1_ACC::getRawSetting(SensorSettingType sensorSetting)
 		//four some reason. This isn't a typo, it's how it's written in the manufacturer's
 		//data sheet
 
-		switch (*(rawSettings + 1))
+		switch (raw_settings[1])
 		{
-		case 0x00: return SensorSettingOptions::ACC_FSR_2_G;
-		case 0x01: return SensorSettingOptions::ACC_FSR_16_G;
-		case 0x10: return SensorSettingOptions::ACC_FSR_4_G;
-		case 0x11: return SensorSettingOptions::ACC_FSR_8_G;
+		case 0b00: return SensorSettingOptions::ACC_FSR_2_G;
+		case 0b01: return SensorSettingOptions::ACC_FSR_16_G;
+		case 0b10: return SensorSettingOptions::ACC_FSR_4_G;
+		case 0b11: return SensorSettingOptions::ACC_FSR_8_G;
 		default: return SensorSettingOptions::ACC_FSR_N_A;
 		}
 	}
@@ -161,14 +163,14 @@ SensorSettingOptions LSM9DS1_ACC::getRawSetting(SensorSettingType sensorSetting)
 		//not both. If the user opts to use one of the optional filters, the frequency for the filter can
 		//be set using the Highpass or Lowpass filter settings type
 
-		switch (*(rawSettings + 2))
+		switch (raw_settings[2])
 		{
-		case 0x000: return SensorSettingOptions::FS_LSM9DS1_ACC_AUTO_NO_FILTERS;
-		case 0x100: return SensorSettingOptions::FS_LSM9DS1_ACC_MANUAL_NO_FILTERS;
-		case 0x010: return SensorSettingOptions::FS_LSM9DS1_ACC_AUTO_LPF2;
-		case 0x110: return SensorSettingOptions::FS_LSM9DS1_ACC_MANUAL_LPF2;
-		case 0x001: return SensorSettingOptions::FS_LSM9DS1_ACC_AUTO_HPF;
-		case 0x101: return SensorSettingOptions::FS_LSM9DS1_ACC_MANUAL_HPF;
+		case 0b000: return SensorSettingOptions::FS_LSM9DS1_ACC_AUTO_NO_FILTERS;
+		case 0b100: return SensorSettingOptions::FS_LSM9DS1_ACC_MANUAL_NO_FILTERS;
+		case 0b010: return SensorSettingOptions::FS_LSM9DS1_ACC_AUTO_LPF2;
+		case 0b110: return SensorSettingOptions::FS_LSM9DS1_ACC_MANUAL_LPF2;
+		case 0b001: return SensorSettingOptions::FS_LSM9DS1_ACC_AUTO_HPF;
+		case 0b101: return SensorSettingOptions::FS_LSM9DS1_ACC_MANUAL_HPF;
 		}
 	}
 	else if (sensorSetting == SensorSettingType::HIGH_PASS_FILTER_FREQ)
@@ -178,12 +180,12 @@ SensorSettingOptions LSM9DS1_ACC::getRawSetting(SensorSettingType sensorSetting)
 		//to actual select one of the below options. Furthermore, we don't explicitly
 		//get to choose the frequency, it is ultimately defined as a function of the
 		//current ODR.
-		switch (*(rawSettings + 3))
+		switch (raw_settings[3])
 		{
-		case 0x00: return SensorSettingOptions::HPF_ODR_OVER_50_HZ;
-		case 0x01: return SensorSettingOptions::HPF_ODR_OVER_100_HZ;
-		case 0x10: return SensorSettingOptions::HPF_ODR_OVER_9_HZ;
-		case 0x11: return SensorSettingOptions::HPF_ODR_OVER_400_HZ;
+		case 0b00: return SensorSettingOptions::HPF_ODR_OVER_50_HZ;
+		case 0b01: return SensorSettingOptions::HPF_ODR_OVER_100_HZ;
+		case 0b10: return SensorSettingOptions::HPF_ODR_OVER_9_HZ;
+		case 0b11: return SensorSettingOptions::HPF_ODR_OVER_400_HZ;
 		}
 	}
 	else if (sensorSetting == SensorSettingType::LOW_PASS_FILTER_FREQ)
@@ -191,22 +193,22 @@ SensorSettingOptions LSM9DS1_ACC::getRawSetting(SensorSettingType sensorSetting)
 		//This represents the frequency of the mandatory low pass anti-aliasing
 		//filter for the LSM9DS1 accelerometer. This filter needs to be set into
 		//manual mode to actual select one of the below options
-		switch (*(rawSettings + 4))
+		switch (raw_settings[4])
 		{
-		case 0x00: return SensorSettingOptions::LPF_408_HZ;
-		case 0x01: return SensorSettingOptions::LPF_211_HZ;
-		case 0x10: return SensorSettingOptions::LPF_105_HZ;
-		case 0x11: return SensorSettingOptions::LPF_50_HZ;
+		case 0b00: return SensorSettingOptions::LPF_408_HZ;
+		case 0b01: return SensorSettingOptions::LPF_211_HZ;
+		case 0b10: return SensorSettingOptions::LPF_105_HZ;
+		case 0b11: return SensorSettingOptions::LPF_50_HZ;
 		}
 	}
 	else if (sensorSetting == SensorSettingType::OPERATING_MODE)
 	{
 		//The LSM9DS1 accelerometer has two different operating modes (for now),
 		//with Gyroscope, or without Gyroscope
-		switch (*(rawSettings + 5))
+		switch (raw_settings[5])
 		{
-		case 0x0: return SensorSettingOptions::OM_ACC_ONLY;
-		case 0x1: return SensorSettingOptions::OM_ACC_AND_GYR;
+		case 0b0: return SensorSettingOptions::OM_ACC_ONLY;
+		case 0b1: return SensorSettingOptions::OM_ACC_AND_GYR;
 		}
 	}
 }
@@ -215,4 +217,361 @@ bool LSM9DS1_ACC::GyroActive()
 {
 	if (getRawSetting(SensorSettingType::OPERATING_MODE) == SensorSettingOptions::OM_ACC_AND_GYR) return true;
 	return false;
+}
+
+//Gyroscope Functions
+LSM9DS1_GYR::LSM9DS1_GYR(winrt::Windows::Storage::Streams::DataReader inputData)
+{
+	//This is where all of the default settings for the sensor go
+	sensorType = SensorType::GYROSCOPE;
+
+	//First copy and persist the raw data
+	for (int i = 0; i < 18; i++) raw_settings[i] = inputData.ReadByte();
+	name = "LSM9DS1"; //Set the name
+
+	//TODO: Currently I'm manually setting all of the possibleSettingOptions vectors. I should utilize the chained
+	//enums to do this manually
+
+	//setting creation
+	//Operating Mode (*note, this must be set up before the Output Data Rate is the odr depends on the current operating mode)
+	SensorSettings OperatingMode;
+	OperatingMode.sensorSettingType = SensorSettingType::OPERATING_MODE;
+	OperatingMode.possibleSettingOptions = { SensorSettingOptions::OM_GYR_REGULAR, SensorSettingOptions::OM_GYR_LOW };
+	OperatingMode.currentSettingOption = getRawSetting(SensorSettingType::OPERATING_MODE);
+	sensorSettings.push_back(OperatingMode);
+
+	//Output Date Rate
+	SensorSettings OutputDataRate;
+	OutputDataRate.sensorSettingType = SensorSettingType::OUTPUT_DATA_RATE;
+	OutputDataRate.possibleSettingOptions = { SensorSettingOptions::ODR_14_9_HZ, SensorSettingOptions::ODR_59_5_HZ, SensorSettingOptions::ODR_119_HZ, SensorSettingOptions::ODR_238_HZ, SensorSettingOptions::ODR_476_HZ, SensorSettingOptions::ODR_952_HZ };
+	OutputDataRate.currentSettingOption = getRawSetting(SensorSettingType::OUTPUT_DATA_RATE);
+	sensorSettings.push_back(OutputDataRate);
+
+	//Full-scale Range
+	SensorSettings FullscaleRange;
+	FullscaleRange.sensorSettingType = SensorSettingType::GYR_FULLSCALE_RANGE;
+	FullscaleRange.possibleSettingOptions = { SensorSettingOptions::GYR_FSR_245_DS, SensorSettingOptions::GYR_FSR_500_DS, SensorSettingOptions::GYR_FSR_2000_DS };
+	FullscaleRange.currentSettingOption = getRawSetting(SensorSettingType::GYR_FULLSCALE_RANGE);
+	sensorSettings.push_back(FullscaleRange);
+
+	//Filter General Settings
+	SensorSettings FilterSettings;
+	FilterSettings.sensorSettingType = SensorSettingType::FILTER_SETTINGS;
+	FilterSettings.possibleSettingOptions = { SensorSettingOptions::FS_LSM9DS1_GYR_LPF1_ONLY, SensorSettingOptions::FS_LSM9DS1_GYR_LPF1_LPF2, SensorSettingOptions::FS_LSM9DS1_GYR_LPF1_HPF, SensorSettingOptions::FS_LSM9DS1_GYR_LPF1_LPF2_HPF };
+	FilterSettings.currentSettingOption = getRawSetting(SensorSettingType::FILTER_SETTINGS);
+	sensorSettings.push_back(FilterSettings);
+
+	//High-pass Filter Frequency Setting (the options depend on wheter or not the HPF is actually turned on)
+	SensorSettings HPFFreq;
+	HPFFreq.sensorSettingType = SensorSettingType::HIGH_PASS_FILTER_FREQ;
+	if (raw_settings[2] & 0b100)
+	{
+		//The cutoff rate for the HPF depends on the current ODR
+		switch (OutputDataRate.currentSettingOption)
+		{
+		case SensorSettingOptions::ODR_14_9_HZ:
+			HPFFreq.possibleSettingOptions = { SensorSettingOptions::HPF_0_001_HZ, SensorSettingOptions::HPF_0_002_HZ, SensorSettingOptions::HPF_0_005_HZ, SensorSettingOptions::HPF_0_01_HZ, SensorSettingOptions::HPF_0_02_HZ, SensorSettingOptions::HPF_0_05_HZ, SensorSettingOptions::HPF_0_1_HZ, SensorSettingOptions::HPF_0_2_HZ, SensorSettingOptions::HPF_0_5_HZ, SensorSettingOptions::HPF_1_HZ };
+			break;
+		case SensorSettingOptions::ODR_59_5_HZ:
+			HPFFreq.possibleSettingOptions = { SensorSettingOptions::HPF_0_005_HZ, SensorSettingOptions::HPF_0_01_HZ, SensorSettingOptions::HPF_0_02_HZ, SensorSettingOptions::HPF_0_05_HZ, SensorSettingOptions::HPF_0_1_HZ, SensorSettingOptions::HPF_0_2_HZ, SensorSettingOptions::HPF_0_5_HZ, SensorSettingOptions::HPF_1_HZ, SensorSettingOptions::HPF_2_HZ, SensorSettingOptions::HPF_4_HZ };
+			break;
+		case SensorSettingOptions::ODR_119_HZ:
+			HPFFreq.possibleSettingOptions = { SensorSettingOptions::HPF_0_01_HZ, SensorSettingOptions::HPF_0_02_HZ, SensorSettingOptions::HPF_0_05_HZ, SensorSettingOptions::HPF_0_1_HZ, SensorSettingOptions::HPF_0_2_HZ, SensorSettingOptions::HPF_0_5_HZ, SensorSettingOptions::HPF_1_HZ, SensorSettingOptions::HPF_2_HZ, SensorSettingOptions::HPF_4_HZ, SensorSettingOptions::HPF_8_HZ };
+			break;
+		case SensorSettingOptions::ODR_238_HZ:
+			HPFFreq.possibleSettingOptions = { SensorSettingOptions::HPF_0_02_HZ, SensorSettingOptions::HPF_0_05_HZ, SensorSettingOptions::HPF_0_1_HZ, SensorSettingOptions::HPF_0_2_HZ, SensorSettingOptions::HPF_0_5_HZ, SensorSettingOptions::HPF_1_HZ, SensorSettingOptions::HPF_2_HZ, SensorSettingOptions::HPF_4_HZ, SensorSettingOptions::HPF_8_HZ, SensorSettingOptions::HPF_15_HZ };
+			break;
+		case SensorSettingOptions::ODR_476_HZ:
+			HPFFreq.possibleSettingOptions = { SensorSettingOptions::HPF_0_05_HZ, SensorSettingOptions::HPF_0_1_HZ, SensorSettingOptions::HPF_0_2_HZ, SensorSettingOptions::HPF_0_5_HZ, SensorSettingOptions::HPF_1_HZ, SensorSettingOptions::HPF_2_HZ, SensorSettingOptions::HPF_4_HZ, SensorSettingOptions::HPF_8_HZ, SensorSettingOptions::HPF_15_HZ, SensorSettingOptions::HPF_30_HZ };
+			break;
+		case SensorSettingOptions::ODR_952_HZ:
+			HPFFreq.possibleSettingOptions = { SensorSettingOptions::HPF_0_1_HZ, SensorSettingOptions::HPF_0_2_HZ, SensorSettingOptions::HPF_0_5_HZ, SensorSettingOptions::HPF_1_HZ, SensorSettingOptions::HPF_2_HZ, SensorSettingOptions::HPF_4_HZ, SensorSettingOptions::HPF_8_HZ, SensorSettingOptions::HPF_15_HZ, SensorSettingOptions::HPF_30_HZ, SensorSettingOptions::HPF_57_HZ };
+			break;
+		}
+		
+		HPFFreq.currentSettingOption = getRawSetting(SensorSettingType::HIGH_PASS_FILTER_FREQ);
+	}
+	else
+	{
+		//The filter isn't turned on so the only option is N/A
+		HPFFreq.possibleSettingOptions = { SensorSettingOptions::HPF_N_A };
+		HPFFreq.currentSettingOption = SensorSettingOptions::HPF_N_A;
+	}
+	sensorSettings.push_back(HPFFreq);
+
+	//Low-pass Filter 2 Frequency Setting (the options depend on wheter or not the LPF2 is actually turned on)
+	SensorSettings LPFFreq;
+	LPFFreq.sensorSettingType = SensorSettingType::LOW_PASS_FILTER_FREQ;
+	if (raw_settings[2] & 0x10)
+	{
+		//The cutoff rate for the LPF2 depends on the current ODR
+		switch (OutputDataRate.currentSettingOption)
+		{
+		case SensorSettingOptions::ODR_14_9_HZ:
+			LPFFreq.possibleSettingOptions = { SensorSettingOptions::LPF_N_A };
+			break;
+		case SensorSettingOptions::ODR_59_5_HZ:
+			LPFFreq.possibleSettingOptions = { SensorSettingOptions::LPF_16_HZ };
+			break;
+		case SensorSettingOptions::ODR_119_HZ:
+			LPFFreq.possibleSettingOptions = { SensorSettingOptions::LPF_14_HZ, SensorSettingOptions::LPF_31_HZ };
+			break;
+		case SensorSettingOptions::ODR_238_HZ:
+			LPFFreq.possibleSettingOptions = { SensorSettingOptions::LPF_14_HZ, SensorSettingOptions::LPF_29_HZ, SensorSettingOptions::LPF_63_HZ, SensorSettingOptions::LPF_78_HZ };
+			break;
+		case SensorSettingOptions::ODR_476_HZ:
+			LPFFreq.possibleSettingOptions = { SensorSettingOptions::LPF_21_HZ, SensorSettingOptions::LPF_28_HZ, SensorSettingOptions::LPF_57_HZ, SensorSettingOptions::LPF_100_HZ };
+			break;
+		case SensorSettingOptions::ODR_952_HZ:
+			LPFFreq.possibleSettingOptions = { SensorSettingOptions::LPF_33_HZ, SensorSettingOptions::LPF_40_HZ, SensorSettingOptions::LPF_58_HZ, SensorSettingOptions::LPF_100_HZ };
+			break;
+		}
+		LPFFreq.currentSettingOption = getRawSetting(SensorSettingType::LOW_PASS_FILTER_FREQ);
+	}
+	else
+	{
+		//The filter isn't turned on so the only option is N/A
+		LPFFreq.possibleSettingOptions = { SensorSettingOptions::HPF_N_A };
+		LPFFreq.currentSettingOption = SensorSettingOptions::HPF_N_A;
+	}
+	sensorSettings.push_back(LPFFreq);
+}
+
+double LSM9DS1_GYR::getConversionFactor()
+{
+	//Returns the Acceleration sensitivity in dps/LSB, used by the IMU class
+	if (getCurrentSettingOption(SensorSettingType::GYR_FULLSCALE_RANGE) == SensorSettingOptions::GYR_FSR_245_DS) return .00875;
+	else if (getCurrentSettingOption(SensorSettingType::GYR_FULLSCALE_RANGE) == SensorSettingOptions::GYR_FSR_500_DS) return .0175;
+	else if (getCurrentSettingOption(SensorSettingType::GYR_FULLSCALE_RANGE) == SensorSettingOptions::GYR_FSR_2000_DS) return .07;
+	else return -1; //shouldn't be possible to have another option, so return this to indicate an error
+}
+
+SensorSettingOptions LSM9DS1_GYR::getRawSetting(SensorSettingType sensorSetting)
+{
+	//The LSM9DS1 Gyroscope raw setting byte array has the following form:
+	//byte 0: ODR setting
+	//byte 1: Full-scale range setting
+	//byte 2: Filter General Settings
+	//byte 3: High Pass Filter Settings
+	//byte 4: Low Pass Filter Settings
+	//byte 5: Operating Mode
+
+	if (sensorSetting == SensorSettingType::OUTPUT_DATA_RATE)
+	{
+		//The ODR options will depend on whether or not the Gyroscope of the LSM9DS1 is also active
+		switch (raw_settings[0])
+		{
+		case 0b001: return SensorSettingOptions::ODR_14_9_HZ;
+		case 0b010: return SensorSettingOptions::ODR_59_5_HZ;
+		case 0b011: return SensorSettingOptions::ODR_119_HZ;
+		case 0b100: return SensorSettingOptions::ODR_238_HZ;
+		case 0b101: return SensorSettingOptions::ODR_476_HZ;
+		case 0b110: return SensorSettingOptions::ODR_952_HZ;
+		default: return SensorSettingOptions::ODR_N_A;
+		}
+	}
+	else if (sensorSetting == SensorSettingType::GYR_FULLSCALE_RANGE)
+	{
+		//The LSM9DS1 accelerometer has 4 different options for the full-scale range.
+		//Oddly enough they don't go in order, the +/- 16G setting comes inbetween 2 and 4
+		//four some reason. This isn't a typo, it's how it's written in the manufacturer's
+		//data sheet
+
+		switch (raw_settings[1])
+		{
+		case 0b00: return SensorSettingOptions::GYR_FSR_245_DS;
+		case 0b01: return SensorSettingOptions::GYR_FSR_500_DS;
+		case 0b11: return SensorSettingOptions::GYR_FSR_2000_DS;
+		default: return SensorSettingOptions::ACC_FSR_N_A;
+		}
+	}
+	else if (sensorSetting == SensorSettingType::FILTER_SETTINGS)
+	{
+		//The LSM9DS1 gyroscope has 3 filters built into it:
+		//1. A (mandatory) low-pass filter LPF1. The cutoff frequency for this filter
+		//   depends on the current ODR. 14.9 Hz ODR -> 5 HZ, 59.9 HZ ODR -> 19 HZ,
+		//   119 HZ ODR -> 38 HZ, 238 HZ ODR -> 76 HZ, 476 HZ ODR -> 100 HZ, 
+		//   952 HZ ODR -> 100 HZ,
+		//2. A second (optional) low pass filter LPF2.
+		//3. An (optional) high pass filter HPF.
+		//
+		//The user can decide what combination of filters they want to use, there
+		//are four options in total: LPF1 only, LPF1 + LPF2, LPF1 + HPF and
+		//LPF1 + LPF2 + HPF
+
+		switch (raw_settings[2])
+		{
+		case 0b010: return SensorSettingOptions::FS_LSM9DS1_GYR_LPF1_LPF2;
+		case 0b101: return SensorSettingOptions::FS_LSM9DS1_GYR_LPF1_HPF;
+		case 0b111: return SensorSettingOptions::FS_LSM9DS1_GYR_LPF1_LPF2_HPF;
+		default: return SensorSettingOptions::FS_LSM9DS1_GYR_LPF1_ONLY;
+		}
+	}
+	else if (sensorSetting == SensorSettingType::HIGH_PASS_FILTER_FREQ)
+	{
+		//This represents the frequency of the optional high pass
+		//filter for the LSM9DS1 gyroscope. This filter needs to be turned on
+		//to actual select one of the below options. The raw data code depends
+		//on the current ODR of the gyroscope.
+
+		if (getCurrentSettingOption(SensorSettingType::OUTPUT_DATA_RATE) == SensorSettingOptions::ODR_14_9_HZ)
+		{
+			switch (raw_settings[3])
+			{
+			default: return SensorSettingOptions::HPF_1_HZ;
+			case 0b0001: return SensorSettingOptions::HPF_0_5_HZ;
+			case 0b0010: return SensorSettingOptions::HPF_0_2_HZ;
+			case 0b0011: return SensorSettingOptions::HPF_0_1_HZ;
+			case 0b0100: return SensorSettingOptions::HPF_0_05_HZ;
+			case 0b0101: return SensorSettingOptions::HPF_0_02_HZ;
+			case 0b0110: return SensorSettingOptions::HPF_0_01_HZ;
+			case 0b0111: return SensorSettingOptions::HPF_0_005_HZ;
+			case 0b1000: return SensorSettingOptions::HPF_0_002_HZ;
+			case 0b1001: return SensorSettingOptions::HPF_0_001_HZ;
+			}
+		}
+		else if (getCurrentSettingOption(SensorSettingType::OUTPUT_DATA_RATE) == SensorSettingOptions::ODR_59_5_HZ)
+		{
+			switch (raw_settings[3])
+			{
+			default: return SensorSettingOptions::HPF_4_HZ;
+			case 0b0001: return SensorSettingOptions::HPF_2_HZ;
+			case 0b0010: return SensorSettingOptions::HPF_1_HZ;
+			case 0b0011: return SensorSettingOptions::HPF_0_5_HZ;
+			case 0b0100: return SensorSettingOptions::HPF_0_2_HZ;
+			case 0b0101: return SensorSettingOptions::HPF_0_1_HZ;
+			case 0b0110: return SensorSettingOptions::HPF_0_05_HZ;
+			case 0b0111: return SensorSettingOptions::HPF_0_02_HZ;
+			case 0b1000: return SensorSettingOptions::HPF_0_01_HZ;
+			case 0b1001: return SensorSettingOptions::HPF_0_005_HZ;
+			}
+		}
+		else if (getCurrentSettingOption(SensorSettingType::OUTPUT_DATA_RATE) == SensorSettingOptions::ODR_119_HZ)
+		{
+			switch (raw_settings[3])
+			{
+			default: return SensorSettingOptions::HPF_8_HZ;
+			case 0b0001: return SensorSettingOptions::HPF_4_HZ;
+			case 0b0010: return SensorSettingOptions::HPF_2_HZ;
+			case 0b0011: return SensorSettingOptions::HPF_1_HZ;
+			case 0b0100: return SensorSettingOptions::HPF_0_5_HZ;
+			case 0b0101: return SensorSettingOptions::HPF_0_2_HZ;
+			case 0b0110: return SensorSettingOptions::HPF_0_1_HZ;
+			case 0b0111: return SensorSettingOptions::HPF_0_05_HZ;
+			case 0b1000: return SensorSettingOptions::HPF_0_02_HZ;
+			case 0b1001: return SensorSettingOptions::HPF_0_01_HZ;
+			}
+		}
+		else if (getCurrentSettingOption(SensorSettingType::OUTPUT_DATA_RATE) == SensorSettingOptions::ODR_238_HZ)
+		{
+			switch (raw_settings[3])
+			{
+			default: return SensorSettingOptions::HPF_15_HZ;
+			case 0b0001: return SensorSettingOptions::HPF_8_HZ;
+			case 0b0010: return SensorSettingOptions::HPF_4_HZ;
+			case 0b0011: return SensorSettingOptions::HPF_2_HZ;
+			case 0b0100: return SensorSettingOptions::HPF_1_HZ;
+			case 0b0101: return SensorSettingOptions::HPF_0_5_HZ;
+			case 0b0110: return SensorSettingOptions::HPF_0_2_HZ;
+			case 0b0111: return SensorSettingOptions::HPF_0_1_HZ;
+			case 0b1000: return SensorSettingOptions::HPF_0_05_HZ;
+			case 0b1001: return SensorSettingOptions::HPF_0_02_HZ;
+			}
+		}
+		else if (getCurrentSettingOption(SensorSettingType::OUTPUT_DATA_RATE) == SensorSettingOptions::ODR_476_HZ)
+		{
+			switch (raw_settings[3])
+			{
+			default: return SensorSettingOptions::HPF_30_HZ;
+			case 0b0001: return SensorSettingOptions::HPF_15_HZ;
+			case 0b0010: return SensorSettingOptions::HPF_8_HZ;
+			case 0b0011: return SensorSettingOptions::HPF_4_HZ;
+			case 0b0100: return SensorSettingOptions::HPF_2_HZ;
+			case 0b0101: return SensorSettingOptions::HPF_1_HZ;
+			case 0b0110: return SensorSettingOptions::HPF_0_5_HZ;
+			case 0b0111: return SensorSettingOptions::HPF_0_2_HZ;
+			case 0b1000: return SensorSettingOptions::HPF_0_1_HZ;
+			case 0b1001: return SensorSettingOptions::HPF_0_05_HZ;
+			}
+		}
+		else if (getCurrentSettingOption(SensorSettingType::OUTPUT_DATA_RATE) == SensorSettingOptions::ODR_952_HZ)
+		{
+			switch (raw_settings[3])
+			{
+			default: return SensorSettingOptions::HPF_57_HZ;
+			case 0b0001: return SensorSettingOptions::HPF_30_HZ;
+			case 0b0010: return SensorSettingOptions::HPF_15_HZ;
+			case 0b0011: return SensorSettingOptions::HPF_8_HZ;
+			case 0b0100: return SensorSettingOptions::HPF_4_HZ;
+			case 0b0101: return SensorSettingOptions::HPF_2_HZ;
+			case 0b0110: return SensorSettingOptions::HPF_1_HZ;
+			case 0b0111: return SensorSettingOptions::HPF_0_5_HZ;
+			case 0b1000: return SensorSettingOptions::HPF_0_2_HZ;
+			case 0b1001: return SensorSettingOptions::HPF_0_1_HZ;
+			}
+		}
+	}
+	else if (sensorSetting == SensorSettingType::LOW_PASS_FILTER_FREQ)
+	{
+		//This represents the frequency of the optional LPF2
+		//for the LSM9DS1 gyroscope. The value of the raw byte
+		//will change with the current ODR of the gyroscope
+		if (getCurrentSettingOption(SensorSettingType::OUTPUT_DATA_RATE) == SensorSettingOptions::ODR_14_9_HZ)
+		{
+			return SensorSettingOptions::LPF_N_A;
+		}
+		else if (getCurrentSettingOption(SensorSettingType::OUTPUT_DATA_RATE) == SensorSettingOptions::ODR_59_5_HZ)
+		{
+			return SensorSettingOptions::LPF_16_HZ;
+		}
+		else if (getCurrentSettingOption(SensorSettingType::OUTPUT_DATA_RATE) == SensorSettingOptions::ODR_119_HZ)
+		{
+			switch (raw_settings[4])
+			{
+			case 0b00: return SensorSettingOptions::LPF_14_HZ;
+			default: return SensorSettingOptions::LPF_31_HZ;
+			}
+		}
+		else if (getCurrentSettingOption(SensorSettingType::OUTPUT_DATA_RATE) == SensorSettingOptions::ODR_119_HZ)
+		{
+			switch (raw_settings[4])
+			{
+			default: return SensorSettingOptions::LPF_14_HZ;
+			case 0b01: return SensorSettingOptions::LPF_29_HZ;
+			case 0b10: return SensorSettingOptions::LPF_63_HZ;
+			case 0b11: return SensorSettingOptions::LPF_78_HZ;
+			}
+		}
+		else if (getCurrentSettingOption(SensorSettingType::OUTPUT_DATA_RATE) == SensorSettingOptions::ODR_476_HZ)
+		{
+			switch (raw_settings[4])
+			{
+			default: return SensorSettingOptions::LPF_21_HZ;
+			case 0b01: return SensorSettingOptions::LPF_28_HZ;
+			case 0b10: return SensorSettingOptions::LPF_57_HZ;
+			case 0b11: return SensorSettingOptions::LPF_100_HZ;
+			}
+		}
+		else if (getCurrentSettingOption(SensorSettingType::OUTPUT_DATA_RATE) == SensorSettingOptions::ODR_952_HZ)
+		{
+			switch (raw_settings[4])
+			{
+			default: return SensorSettingOptions::LPF_33_HZ;
+			case 0b01: return SensorSettingOptions::LPF_40_HZ;
+			case 0b10: return SensorSettingOptions::LPF_58_HZ;
+			case 0b11: return SensorSettingOptions::LPF_100_HZ;
+			}
+		}
+		
+	}
+	else if (sensorSetting == SensorSettingType::OPERATING_MODE)
+	{
+		//The LSM9DS1 accelerometer has two different operating modes (for now),
+		//with Gyroscope, or without Gyroscope
+		switch (raw_settings[5])
+		{
+		case 0b0: return SensorSettingOptions::OM_GYR_REGULAR;
+		case 0b1: return SensorSettingOptions::OM_GYR_LOW;
+		}
+	}
 }

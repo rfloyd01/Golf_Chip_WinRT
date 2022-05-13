@@ -12,7 +12,9 @@ namespace Golf_Chip_WinRT
         GolfChipSettings();
         
         Windows.Foundation.Collections.IObservableVector<Object> KnownDevices{ get; };
-        Windows.Foundation.Collections.IObservableVector<Object> DeviceSettings{ get; };
+        Windows.Foundation.Collections.IObservableVector<Object> AccelerometerSettings{ get; };
+        Windows.Foundation.Collections.IObservableVector<Object> GyroscopeSettings{ get; };
+        Windows.Foundation.Collections.IObservableVector<Object> MagnetometerSettings{ get; };
 
         Windows.UI.Xaml.Controls.ListView ResultsListView{ get; };
 

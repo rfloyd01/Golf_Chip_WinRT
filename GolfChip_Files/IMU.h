@@ -9,7 +9,7 @@ class IMU
 {
 public:
 	IMU() {}
-	void setSensor(std::string sensorName, uint8_t* sensorSettings);
+	void setSensor(std::string sensorName, winrt::Windows::Storage::Streams::DataReader sensorSettings);
 	std::vector<SensorSettings> getSensorSettings(SensorType sensorType);
 
 private:

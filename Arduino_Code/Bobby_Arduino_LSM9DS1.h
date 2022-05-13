@@ -62,9 +62,31 @@ class LSM9DS1Class {
   private:
     TwoWire* _wire;
     //uint8_t sensor_settings[18]; //TODO: Delete at some point
-    uint8_t acc_settings[18];
-    uint8_t gyr_settings[18];
-    uint8_t mag_settings[18];
+    uint8_t acc_settings[18]; //See info on each byte below
+    uint8_t gyr_settings[18]; //See info on each byte below
+    uint8_t mag_settings[18]; //See info on each byte below
+
+    /*
+     * ACC Settings array options
+     * Byte 0 (ODR Settings): 0x000 (off), 0x001 (10 Hz or 14.9Hz if gryo on), 0x010 (50 Hz or 59.5 Hz if gyro on), 0x011 (119 Hz), 0x100 (238 Hz), 0x101 (476 Hz), 0x110 (952 Hz)
+     * Byte 1 (Fullscale Range Settings): 0x00 (+/- 2G), 0x01 (+/- 16G), 0x10 (+/- 4G), 0x11 (+/- 8G)
+     * Byte 2 (Filter Settings): 0x000 (Auto mode, no extra filters), 0x001 (Auto mode, HPF on), 0x010 (Auto mode, LPF2 on), 0x100 (Manual mode, no extra filters), 0x101 (Manual mode, HPF on), 0x110 (Manual mode, LPF2 on)
+     * Byte 3 (High Pass Filter Frequency): 0x00 (408 Hz), 0x01 (211 Hz), 0x10 (105 Hz), 0x11 (50 Hz)
+     * Byte 4 (Low Pass Filter Frequency): 0x00 (ODR/50), 0x01 (ODR/100), 0x10 (ODR/9), 0x11 (ODR/400)
+     * Byte 5 (Power/Mode Settings): 0x0 (Accelerometer only), 0x1 (Accelerometer and Gyroscope active)
+     * Bytes 6-17 are currently not used and set at 0x00
+     */
+
+     /*
+     * GYR Settings array options
+     * Byte 0 (ODR Settings): 0x000 (off), 0x001 (14.9Hz), 0x010 (59.5 Hz), 0x011 (119 Hz), 0x100 (238 Hz), 0x101 (476 Hz), 0x110 (952 Hz)
+     * Byte 1 (Fullscale Range Settings): 0x00 (+/- 245 deg/s), 0x01 (+/- 500 deg/s), 0x11 (+/- 2000 deg/s)
+     * Byte 2 (Filter Settings [These are confusing in the documentation and should be verified]): 0x000 (LPF1 Only), 0x001, 0x010, 0x100, 0x101 (LPF1 and HPF), 0x110
+     * Byte 3 (High Pass Filter Frequency): 0x00 (408 Hz), 0x01 (211 Hz), 0x10 (105 Hz), 0x11 (50 Hz)
+     * Byte 4 (Low Pass Filter Frequency): 0x00 (ODR/50), 0x01 (ODR/100), 0x10 (ODR/9), 0x11 (ODR/400)
+     * Byte 5 (Power/Mode Settings): 0x0 (Accelerometer only), 0x1 (Accelerometer and Gyroscope active)
+     * Bytes 6-17 are currently not used and set at 0x00
+     */
 
     /*
      * Some notes on the sensor settings array. The GYROSCOPE_FILTER_SETTINGS variable is a combination of a few different registers. Its 8 bits look

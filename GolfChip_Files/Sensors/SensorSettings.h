@@ -79,17 +79,38 @@ enum class SensorSettingOptions
 	FS_LSM9DS1_ACC_MANUAL_LPF2,
 	FS_LSM9DS1_ACC_AUTO_HPF,
 	FS_LSM9DS1_ACC_MANUAL_HPF,
+	FS_LSM9DS1_GYR_LPF1_ONLY,
+	FS_LSM9DS1_GYR_LPF1_LPF2,
+	FS_LSM9DS1_GYR_LPF1_HPF,
+	FS_LSM9DS1_GYR_LPF1_LPF2_HPF,
 
 	//High Pass Filter Frequency Setting
 	//(*note) if there are more than 256 HPF settings then the (int) values
 	//in the SensorSettings enum class will need to be updated
-
-	//The below 4 frequencies are dependent on current ODR settings
 	HPF_N_A = (int)SensorSettingType::HIGH_PASS_FILTER_FREQ,
+
+	//The below 4 frequencies are dependent on current ODR settings (for the LSM9DS1 ACC)
 	HPF_ODR_OVER_50_HZ,
 	HPF_ODR_OVER_100_HZ,
 	HPF_ODR_OVER_9_HZ,
 	HPF_ODR_OVER_400_HZ,
+
+	HPF_0_001_HZ,
+	HPF_0_002_HZ,
+	HPF_0_005_HZ,
+	HPF_0_01_HZ,
+	HPF_0_02_HZ,
+	HPF_0_05_HZ,
+	HPF_0_1_HZ,
+	HPF_0_2_HZ,
+	HPF_0_5_HZ,
+	HPF_1_HZ,
+	HPF_2_HZ,
+	HPF_4_HZ,
+	HPF_8_HZ,
+	HPF_15_HZ,
+	HPF_30_HZ,
+	HPF_57_HZ,
 
 	//Low Pass Filter Frequency Setting
 	//(*note) if there are more than 256 LPF settings then the (int) values
@@ -97,10 +118,23 @@ enum class SensorSettingOptions
 
 	//The below 4 frequencies are dependent on current ODR settings
 	LPF_N_A = (int)SensorSettingType::LOW_PASS_FILTER_FREQ,
-	LPF_408_HZ,
-	LPF_211_HZ,
-	LPF_105_HZ,
+	LPF_14_HZ,
+	LPF_16_HZ,
+	LPF_21_HZ,
+	LPF_28_HZ,
+	LPF_29_HZ,
+	LPF_31_HZ,
+	LPF_33_HZ,
+	LPF_40_HZ,
 	LPF_50_HZ,
+	LPF_57_HZ,
+	LPF_58_HZ,
+	LPF_63_HZ,
+	LPF_78_HZ,
+	LPF_100_HZ,
+	LPF_105_HZ,
+	LPF_211_HZ,
+	LPF_408_HZ,
 
 	//Operating Mode Options
 	//A somewhat complex category as different sensors can have vastly different kinds
@@ -109,6 +143,10 @@ enum class SensorSettingOptions
 	//LSM9DS1 Accelerometer Operating Modes
 	OM_ACC_ONLY = (int)SensorSettingType::OPERATING_MODE,
 	OM_ACC_AND_GYR,
+
+	//LSM9DS1 Gyroscope Operating Modes
+	OM_GYR_REGULAR,
+	OM_GYR_LOW,
 
 	//Very last option (used to terminate list, as well as act as a null value)
 	LAST

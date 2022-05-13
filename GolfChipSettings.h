@@ -18,9 +18,17 @@ namespace winrt::Golf_Chip_WinRT::implementation
         {
             return m_knownDevices;
         }
-        winrt::Windows::Foundation::Collections::IObservableVector<winrt::Windows::Foundation::IInspectable> DeviceSettings()
+        winrt::Windows::Foundation::Collections::IObservableVector<winrt::Windows::Foundation::IInspectable> AccelerometerSettings()
         {
-            return m_deviceSettings;
+            return m_accelerometerSettings;
+        }
+        winrt::Windows::Foundation::Collections::IObservableVector<winrt::Windows::Foundation::IInspectable> GyroscopeSettings()
+        {
+            return m_gyroscopeSettings;
+        }
+        winrt::Windows::Foundation::Collections::IObservableVector<winrt::Windows::Foundation::IInspectable> MagnetometerSettings()
+        {
+            return m_magnetometerSettings;
         }
 
         void EnumerateButton_Click();
@@ -33,7 +41,9 @@ namespace winrt::Golf_Chip_WinRT::implementation
 
     private:
         Windows::Foundation::Collections::IObservableVector<Windows::Foundation::IInspectable> m_knownDevices = single_threaded_observable_vector<Windows::Foundation::IInspectable>();
-        Windows::Foundation::Collections::IObservableVector<Windows::Foundation::IInspectable> m_deviceSettings = single_threaded_observable_vector<Windows::Foundation::IInspectable>();
+        Windows::Foundation::Collections::IObservableVector<Windows::Foundation::IInspectable> m_accelerometerSettings = single_threaded_observable_vector<Windows::Foundation::IInspectable>();
+        Windows::Foundation::Collections::IObservableVector<Windows::Foundation::IInspectable> m_gyroscopeSettings = single_threaded_observable_vector<Windows::Foundation::IInspectable>();
+        Windows::Foundation::Collections::IObservableVector<Windows::Foundation::IInspectable> m_magnetometerSettings = single_threaded_observable_vector<Windows::Foundation::IInspectable>();
 
         std::vector<Windows::Devices::Enumeration::DeviceInformation> UnknownDevices;
         Windows::Devices::Enumeration::DeviceWatcher deviceWatcher{ nullptr };

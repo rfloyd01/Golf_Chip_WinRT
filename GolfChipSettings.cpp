@@ -176,17 +176,11 @@ namespace winrt::Golf_Chip_WinRT::implementation
     void GolfChipSettings::SetSettingVectors()
     {
         //Accelerometer first
-        auto settings = GlobalGolfChip::m_golfChip->getIMU()->getSensorSettings(SensorType::ACCELEROMETER);
-        //TODO: currently only settings 0 (Operating Mode) and 4 (High Pass Filter Freq) work, any others break the program, why is this the case?
-        //It appears to be something wrong with the XAML code for the combo box which lists out the possible options
+        auto accSettings = GlobalGolfChip::m_golfChip->getIMU()->getSensorSettings(SensorType::ACCELEROMETER);
+        auto gyrSettings = GlobalGolfChip::m_golfChip->getIMU()->getSensorSettings(SensorType::GYROSCOPE);
 
-        /*m_deviceSettings.Append(make<GolfChipSettingsDisplay>(settings[0]));
-        m_deviceSettings.Append(make<GolfChipSettingsDisplay>(settings[4]));
-        m_deviceSettings.Append(make<GolfChipSettingsDisplay>(settings[5]));*/
-        for (int i = 0; i < settings.size(); i++)
-        {
-            m_deviceSettings.Append(make<GolfChipSettingsDisplay>(settings[i]));
-        }
+        for (int i = 0; i < accSettings.size(); i++)  m_accelerometerSettings.Append(make<GolfChipSettingsDisplay>(accSettings[i]));
+        for (int i = 0; i < gyrSettings.size(); i++)  m_gyroscopeSettings.Append(make<GolfChipSettingsDisplay>(gyrSettings[i]));
     }
 #pragma endregion
 
@@ -428,6 +422,8 @@ namespace winrt::Golf_Chip_WinRT::implementation
                 {
                     uint32_t c = characteristicResult.Characteristics().GetAt(i).Uuid().Data1;
                     if (c == Constants::GolfChipAccelerometerSettingsCharacteristicUuid) AccelerometerSettingCharacteristicLocation = i;
+                    else if (c == Constants::GolfChipGyroscopeSettingsCharacteristicUuid) GyroscopeSettingCharacteristicLocation = i;
+                    else if (c == Constants::GolfChipMagnetometerSettingsCharacteristicUuid) MagnetometerSettingCharacteristicLocation = i;
                 }
 
                 //Save the characteristic info in the shared section of the code
@@ -438,10 +434,14 @@ namespace winrt::Golf_Chip_WinRT::implementation
                 //After setting the connectionCharacteristic, get sensor data from the Golf Chip to set up the IMU object,
                 //as well as the SensorSettings arrays on this page.
 
-                //TODO: While testing, I have all information in a single characteristic, ultimately I will break this out
-                //into three separate ones (one each for the acc, gyr and mag sensors).
+                //TODO: Should put some confirmation that the characteristics are actually found before trying to read them
                 auto characteristicValue = co_await GlobalGolfChip::m_golfChip->getInformationCharacteristic().ReadValueAsync();
-                GlobalGolfChip::m_golfChip->getIMU()->setSensor("LSM9DS1_ACC", characteristicValue.Value().data());
+                auto gyroCharacteristicValue = co_await characteristicResult.Characteristics().GetAt(GyroscopeSettingCharacteristicLocation).ReadValueAsync();
+
+                auto characteristicDataReader = Windows::Storage::Streams::DataReader::FromBuffer(characteristicValue.Value());
+                
+                GlobalGolfChip::m_golfChip->getIMU()->setSensor("LSM9DS1_ACC", characteristicDataReader);
+                GlobalGolfChip::m_golfChip->getIMU()->setSensor("LSM9DS1_GYR", Windows::Storage::Streams::DataReader::FromBuffer(gyroCharacteristicValue.Value()));
 
                 //Fill out the display settings vectors
                 SetSettingVectors();

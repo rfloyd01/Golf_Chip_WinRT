@@ -70,6 +70,10 @@ namespace winrt::Golf_Chip_WinRT::implementation
 		case SensorSettingOptions::FS_LSM9DS1_ACC_MANUAL_LPF2: return L"Manual mode, LPF2 Active";
 		case SensorSettingOptions::FS_LSM9DS1_ACC_AUTO_HPF: return L"Auto mode, HPF Active";
 		case SensorSettingOptions::FS_LSM9DS1_ACC_MANUAL_HPF: return L"Manual mode, HPF Active";
+		case SensorSettingOptions::FS_LSM9DS1_GYR_LPF1_ONLY: return L"LPF1 Only";
+		case SensorSettingOptions::FS_LSM9DS1_GYR_LPF1_LPF2: return L"LPF1 and LPF2";
+		case SensorSettingOptions::FS_LSM9DS1_GYR_LPF1_HPF: return L"LPF1 and HPF";
+		case SensorSettingOptions::FS_LSM9DS1_GYR_LPF1_LPF2_HPF: return L"LPF1, LPF2 and HPF";
 
 		//High Pass Filter Frequency Options
 		case SensorSettingOptions::HPF_N_A: return L"N/A";
@@ -77,17 +81,48 @@ namespace winrt::Golf_Chip_WinRT::implementation
 		case SensorSettingOptions::HPF_ODR_OVER_100_HZ: return L"ODR/100 Hz";
 		case SensorSettingOptions::HPF_ODR_OVER_9_HZ: return L"ODR/9 Hz";
 		case SensorSettingOptions::HPF_ODR_OVER_400_HZ: return L"ODR/400 Hz";
+		case SensorSettingOptions::HPF_0_001_HZ: return L"0.001 Hz";
+		case SensorSettingOptions::HPF_0_002_HZ: return L"0.002 Hz";
+		case SensorSettingOptions::HPF_0_005_HZ: return L"0.005 Hz";
+		case SensorSettingOptions::HPF_0_01_HZ: return L"0.01 Hz";
+		case SensorSettingOptions::HPF_0_02_HZ: return L"0.02 Hz";
+		case SensorSettingOptions::HPF_0_05_HZ: return L"0.05 Hz";
+		case SensorSettingOptions::HPF_0_1_HZ: return L"0.1 Hz";
+		case SensorSettingOptions::HPF_0_2_HZ: return L"0.2 Hz";
+		case SensorSettingOptions::HPF_0_5_HZ: return L"0.5 Hz";
+		case SensorSettingOptions::HPF_1_HZ: return L"1 Hz";
+		case SensorSettingOptions::HPF_2_HZ: return L"2 Hz";
+		case SensorSettingOptions::HPF_4_HZ: return L"4 Hz";
+		case SensorSettingOptions::HPF_8_HZ: return L"8 Hz";
+		case SensorSettingOptions::HPF_15_HZ: return L"15 Hz";
+		case SensorSettingOptions::HPF_30_HZ: return L"30 Hz";
+		case SensorSettingOptions::HPF_57_HZ: return L"57 Hz";
 
 		//Low Pass Filter Frequency Options
 		case SensorSettingOptions::LPF_N_A: return L"N/A";
-		case SensorSettingOptions::LPF_408_HZ: return L"408 Hz";
-		case SensorSettingOptions::LPF_211_HZ: return L"211 Hz";
-		case SensorSettingOptions::LPF_105_HZ: return L"105 Hz";
+		case SensorSettingOptions::LPF_14_HZ: return L"14 Hz";
+		case SensorSettingOptions::LPF_16_HZ: return L"16 Hz";
+		case SensorSettingOptions::LPF_21_HZ: return L"21 Hz";
+		case SensorSettingOptions::LPF_28_HZ: return L"28 Hz";
+		case SensorSettingOptions::LPF_29_HZ: return L"29 Hz";
+		case SensorSettingOptions::LPF_31_HZ: return L"31 Hz";
+		case SensorSettingOptions::LPF_33_HZ: return L"33 Hz";
+		case SensorSettingOptions::LPF_40_HZ: return L"40 Hz";
 		case SensorSettingOptions::LPF_50_HZ: return L"50 Hz";
+		case SensorSettingOptions::LPF_57_HZ: return L"57 Hz";
+		case SensorSettingOptions::LPF_58_HZ: return L"58 Hz";
+		case SensorSettingOptions::LPF_63_HZ: return L"63 Hz";
+		case SensorSettingOptions::LPF_78_HZ: return L"78 Hz";
+		case SensorSettingOptions::LPF_100_HZ: return L"100 Hz";
+		case SensorSettingOptions::LPF_105_HZ: return L"105 Hz";
+		case SensorSettingOptions::LPF_211_HZ: return L"211 Hz";
+		case SensorSettingOptions::LPF_408_HZ: return L"408 Hz";
 
 		//Operating Mode Options
 		case SensorSettingOptions::OM_ACC_ONLY: return L"Accelerometer Only";
 		case SensorSettingOptions::OM_ACC_AND_GYR: return L"Accelerometer + Gyroscope";
+		case SensorSettingOptions::OM_GYR_REGULAR: return L"Normal Mode";
+		case SensorSettingOptions::OM_GYR_LOW: return L"Low Power Mode";
         }
         return L"Sensor Option Not Found";
     }

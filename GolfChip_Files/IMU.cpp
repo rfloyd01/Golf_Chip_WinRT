@@ -3,7 +3,7 @@
 
 #include "Sensors/Sensor.h"
 
-void IMU::setSensor(std::string sensorName, uint8_t* sensorSettings)
+void IMU::setSensor(std::string sensorName, winrt::Windows::Storage::Streams::DataReader sensorSettings)
 {
 	//Envoke the static SensorFactory() method to build the sensor.
 	//The factory works by looking at the name of the sensor that's
