@@ -30,6 +30,9 @@ namespace winrt::Golf_Chip_WinRT::implementation
         {
             return m_magnetometerSettings;
         }
+        hstring AccelerometerName() { return m_accName; }
+        hstring GyroscopeName() { return m_gyrName; }
+        hstring MagnetometerName() { return m_magName; }
 
         void EnumerateButton_Click();
         fire_and_forget ConnectButton_Click();
@@ -44,6 +47,10 @@ namespace winrt::Golf_Chip_WinRT::implementation
         Windows::Foundation::Collections::IObservableVector<Windows::Foundation::IInspectable> m_accelerometerSettings = single_threaded_observable_vector<Windows::Foundation::IInspectable>();
         Windows::Foundation::Collections::IObservableVector<Windows::Foundation::IInspectable> m_gyroscopeSettings = single_threaded_observable_vector<Windows::Foundation::IInspectable>();
         Windows::Foundation::Collections::IObservableVector<Windows::Foundation::IInspectable> m_magnetometerSettings = single_threaded_observable_vector<Windows::Foundation::IInspectable>();
+
+        hstring m_accName;
+        hstring m_gyrName;
+        hstring m_magName;
 
         std::vector<Windows::Devices::Enumeration::DeviceInformation> UnknownDevices;
         Windows::Devices::Enumeration::DeviceWatcher deviceWatcher{ nullptr };

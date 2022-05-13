@@ -71,7 +71,9 @@
 
             <Border Grid.Column="0" BorderBrush="#FF837C7C" BorderThickness="2, 2, 1, 2"/>
             <StackPanel x:Name="AccSettings" Grid.Column="0" >
-                <TextBlock HorizontalAlignment="Center" Foreground="White" FontSize="20" Margin="0,0,0,20">Accelerometer Settings</TextBlock>
+                <TextBlock HorizontalAlignment="Center" Foreground="White" FontSize="20">Accelerometer Settings</TextBlock>
+                <TextBlock HorizontalAlignment="Center" Foreground="White" FontSize="16" Margin="0, 0, 0, 20" Text="{x:Bind AccelerometerName, Mode=OneWay}"/>
+
                 <ScrollViewer x:Name="AccelerometerSettingsList" VerticalScrollMode="Auto" VerticalScrollBarVisibility="Auto">
                     <ListView x:Name="AccSettingsListView"
                       ItemTemplate="{StaticResource SettingsListViewTemplate}"
@@ -81,7 +83,8 @@
 
             <Border Grid.Column="1" BorderBrush="#FF837C7C" BorderThickness="1, 2, 1, 2"/>
             <StackPanel x:Name="GyroSettings" Grid.Column="1" >
-                <TextBlock HorizontalAlignment="Center" Foreground="White" FontSize="20" Margin="0,0,0,20">Gyroscope Settings</TextBlock>
+                <TextBlock HorizontalAlignment="Center" Foreground="White" FontSize="20">Gyroscope Settings</TextBlock>
+                <TextBlock HorizontalAlignment="Center" Foreground="White" FontSize="16" Margin="0, 0, 0, 20" Text="{x:Bind GyroscopeName, Mode=OneWay}"/>
                 <ScrollViewer x:Name="GyroscopeSettingsList" VerticalScrollMode="Auto" VerticalScrollBarVisibility="Auto">
                     <ListView x:Name="GyrSettingsListView"
                       ItemTemplate="{StaticResource SettingsListViewTemplate}"

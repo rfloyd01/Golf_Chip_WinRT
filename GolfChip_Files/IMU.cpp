@@ -22,3 +22,8 @@ std::vector<SensorSettings> IMU::getSensorSettings(SensorType sensorType)
 {
 	return sensors[sensorType]->getSensorSettings();
 }
+
+std::shared_ptr<Sensor> IMU::getSensor(SensorType sensorType)
+{ 
+	return sensors[sensorType];
+}

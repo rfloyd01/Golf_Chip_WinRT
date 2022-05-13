@@ -179,6 +179,12 @@ namespace winrt::Golf_Chip_WinRT::implementation
         auto accSettings = GlobalGolfChip::m_golfChip->getIMU()->getSensorSettings(SensorType::ACCELEROMETER);
         auto gyrSettings = GlobalGolfChip::m_golfChip->getIMU()->getSensorSettings(SensorType::GYROSCOPE);
 
+        m_accName = winrt::to_hstring(GlobalGolfChip::m_golfChip->getIMU()->getSensor(SensorType::ACCELEROMETER)->getName());
+        m_gyrName = winrt::to_hstring(GlobalGolfChip::m_golfChip->getIMU()->getSensor(SensorType::GYROSCOPE)->getName());
+
+        OutputDebugStringW((L"Acc name = " + m_accName).c_str());
+        OutputDebugStringW((L"Gyr name = " + m_gyrName).c_str());
+
         for (int i = 0; i < accSettings.size(); i++)  m_accelerometerSettings.Append(make<GolfChipSettingsDisplay>(accSettings[i]));
         for (int i = 0; i < gyrSettings.size(); i++)  m_gyroscopeSettings.Append(make<GolfChipSettingsDisplay>(gyrSettings[i]));
     }
