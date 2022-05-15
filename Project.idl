@@ -22,7 +22,10 @@ namespace Golf_Chip_WinRT
     runtimeclass GolfChipSettingsDisplay : Windows.UI.Xaml.Data.INotifyPropertyChanged
     {
 	    String SettingType{ get; };
-        Int32 SelectedOption{ get; };
+	    Int32 SelectedOption{ get; set; };
         IObservableVector<Object> AvailableOptions{ get; };
+
+		Int32 GetUnderlyingSetting{ get; };
+		Int32 GetUnderlyingOption(Int32 index);
 	}
 }

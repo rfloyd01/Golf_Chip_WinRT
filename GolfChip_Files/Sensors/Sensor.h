@@ -20,6 +20,7 @@ public:
 	uint8_t* getRawSettings() { return raw_settings; }
 	std::vector<SensorSettings> getSensorSettings();
 	std::string getName() { return name; }
+	virtual bool optionCascade(SensorSettingType sensorSetting) = 0;
 
 protected:
 	virtual SensorSettingOptions getRawSetting(SensorSettingType sensorSetting) = 0; //Every sensor may have a slightly different raw settings byte array so will need a different way to read it

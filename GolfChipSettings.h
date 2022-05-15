@@ -1,6 +1,9 @@
 ﻿#pragma once
 #include "GolfChipSettings.g.h"
 
+//Forward Declarations
+class Sensor;
+
 namespace winrt::Golf_Chip_WinRT::implementation
 {
     struct GolfChipSettings : GolfChipSettingsT<GolfChipSettings>
@@ -22,6 +25,10 @@ namespace winrt::Golf_Chip_WinRT::implementation
         {
             return m_accelerometerSettings;
         }
+        void AccelerometerSettings(winrt::Windows::Foundation::Collections::IObservableVector<winrt::Windows::Foundation::IInspectable> const& value)
+        {
+
+        }
         winrt::Windows::Foundation::Collections::IObservableVector<winrt::Windows::Foundation::IInspectable> GyroscopeSettings()
         {
             return m_gyroscopeSettings;
@@ -42,6 +49,8 @@ namespace winrt::Golf_Chip_WinRT::implementation
         void NotifyUser(hstring const& strMessage, winrt::Golf_Chip_WinRT::NotifyType const& type);
         void UpdateStatus(const hstring& strMessage, NotifyType type);
 
+        void SensorOption_SelectionChanged(winrt::Windows::Foundation::IInspectable const& sender, winrt::Windows::UI::Xaml::Controls::SelectionChangedEventArgs const& e);
+
     private:
         Windows::Foundation::Collections::IObservableVector<Windows::Foundation::IInspectable> m_knownDevices = single_threaded_observable_vector<Windows::Foundation::IInspectable>();
         Windows::Foundation::Collections::IObservableVector<Windows::Foundation::IInspectable> m_accelerometerSettings = single_threaded_observable_vector<Windows::Foundation::IInspectable>();
@@ -51,6 +60,8 @@ namespace winrt::Golf_Chip_WinRT::implementation
         hstring m_accName;
         hstring m_gyrName;
         hstring m_magName;
+
+        std::shared_ptr<Sensor> m_display_sensors[3]{ nullptr, nullptr, nullptr }; //used to display settings on the screen without altering actual sensor settings
 
         std::vector<Windows::Devices::Enumeration::DeviceInformation> UnknownDevices;
         Windows::Devices::Enumeration::DeviceWatcher deviceWatcher{ nullptr };
@@ -76,6 +87,9 @@ namespace winrt::Golf_Chip_WinRT::implementation
         fire_and_forget DeviceWatcher_Stopped(Windows::Devices::Enumeration::DeviceWatcher sender, Windows::Foundation::IInspectable const&);
 
         uint64_t getBLEAddress(const hstring& unformattedAddress);
+
+        int amountOfSettings = 0;
+        int settingsLoaded = 0;
     };
 }
 namespace winrt::Golf_Chip_WinRT::factory_implementation

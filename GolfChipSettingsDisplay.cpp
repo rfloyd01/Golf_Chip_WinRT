@@ -2,6 +2,9 @@
 #include "GolfChipSettingsDisplay.h"
 #include "GolfChipSettingsDisplay.g.cpp"
 
+using namespace winrt;
+using namespace Windows::UI::Xaml::Data;
+
 namespace winrt::Golf_Chip_WinRT::implementation
 {
     //These functions exist to convert the sensor setting enums into readable strings
@@ -158,6 +161,7 @@ namespace winrt::Golf_Chip_WinRT::implementation
         }
         return L"Sensor Option Not Found";
     }
+
 }
 
 namespace winrt::Golf_Chip_WinRT::implementation
@@ -170,4 +174,9 @@ namespace winrt::Golf_Chip_WinRT::implementation
     {
         m_propertyChanged.remove(token);
     }
+
+	void GolfChipSettingsDisplay::OnPropertyChanged(param::hstring const& property)
+	{
+		m_propertyChanged(*this, PropertyChangedEventArgs(property));
+	}
 }

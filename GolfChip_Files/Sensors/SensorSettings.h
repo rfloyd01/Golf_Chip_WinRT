@@ -14,6 +14,7 @@ enum class SensorSettingType
 	HIGH_PASS_FILTER_FREQ = 0x300,
 	LOW_PASS_FILTER_FREQ = 0x400,
 	OPERATING_MODE = 0x500,
+	LAST = 0xFFFF
 };
 
 enum class SensorSettingOptions

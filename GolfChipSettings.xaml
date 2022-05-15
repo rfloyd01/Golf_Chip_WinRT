@@ -17,7 +17,7 @@
                     <TextBlock TextWrapping="WrapWholeWords">
                         <Run Text="{x:Bind SettingType, Mode=OneWay}" FontWeight="Bold"/>: 
                     </TextBlock>
-                    <ComboBox ItemsSource="{x:Bind AvailableOptions, Mode=OneWay}" SelectedIndex="{x:Bind SelectedOption, Mode=OneWay}"/>
+                    <ComboBox ItemsSource="{x:Bind AvailableOptions, Mode=OneWay}" SelectedIndex="{x:Bind SelectedOption, Mode=OneWay}" SelectionChanged="SensorOption_SelectionChanged"/>
                 </StackPanel>
             </DataTemplate>
             <DataTemplate x:Key="ResultsListViewTemplate" x:DataType="local:BluetoothLEDeviceDisplay">

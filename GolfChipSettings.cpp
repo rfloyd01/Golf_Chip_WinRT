@@ -70,6 +70,11 @@ namespace winrt::Golf_Chip_WinRT::implementation
         
         if (GlobalGolfChip::m_golfChip->getBLEDevice() != nullptr)
         {
+            //create the display sensors from the existing connected sensors
+            /*auto currentAcc = GlobalGolfChip::m_golfChip->getIMU()->getSensor(SensorType::ACCELEROMETER);
+            m_display_sensors[SensorType::ACCELEROMETER] = Sensor::SensorFactory(currentAcc->getName(), );
+            auto gyrSettings = GlobalGolfChip::m_golfChip->getIMU()->getSensorSettings(SensorType::GYROSCOPE);
+            auto magSettings = GlobalGolfChip::m_golfChip->getIMU()->getSensorSettings(SensorType::MAGNETOMETER);*/
             DisplaySettingsMode();
         }
         else
@@ -176,14 +181,21 @@ namespace winrt::Golf_Chip_WinRT::implementation
     void GolfChipSettings::SetSettingVectors()
     {
         //Accelerometer first
-        auto accSettings = GlobalGolfChip::m_golfChip->getIMU()->getSensorSettings(SensorType::ACCELEROMETER);
+        /*auto accSettings = GlobalGolfChip::m_golfChip->getIMU()->getSensorSettings(SensorType::ACCELEROMETER);
         auto gyrSettings = GlobalGolfChip::m_golfChip->getIMU()->getSensorSettings(SensorType::GYROSCOPE);
-        auto magSettings = GlobalGolfChip::m_golfChip->getIMU()->getSensorSettings(SensorType::MAGNETOMETER);
+        auto magSettings = GlobalGolfChip::m_golfChip->getIMU()->getSensorSettings(SensorType::MAGNETOMETER);*/
+        auto accSettings = m_display_sensors[SensorType::ACCELEROMETER]->getSensorSettings();
+        auto gyrSettings = m_display_sensors[SensorType::GYROSCOPE]->getSensorSettings();
+        auto magSettings = m_display_sensors[SensorType::MAGNETOMETER]->getSensorSettings();
 
-        m_accName = winrt::to_hstring(GlobalGolfChip::m_golfChip->getIMU()->getSensor(SensorType::ACCELEROMETER)->getName());
+        /*m_accName = winrt::to_hstring(GlobalGolfChip::m_golfChip->getIMU()->getSensor(SensorType::ACCELEROMETER)->getName());
         m_gyrName = winrt::to_hstring(GlobalGolfChip::m_golfChip->getIMU()->getSensor(SensorType::GYROSCOPE)->getName());
-        m_magName = winrt::to_hstring(GlobalGolfChip::m_golfChip->getIMU()->getSensor(SensorType::MAGNETOMETER)->getName());
+        m_magName = winrt::to_hstring(GlobalGolfChip::m_golfChip->getIMU()->getSensor(SensorType::MAGNETOMETER)->getName());*/
 
+        m_accName = winrt::to_hstring(m_display_sensors[SensorType::ACCELEROMETER]->getName());
+        m_gyrName = winrt::to_hstring(m_display_sensors[SensorType::GYROSCOPE]->getName());
+        m_magName = winrt::to_hstring(m_display_sensors[SensorType::MAGNETOMETER]->getName());
+        
         AccName().Text(m_accName);
         GyrName().Text(m_gyrName);
         MagName().Text(m_magName);
@@ -191,6 +203,8 @@ namespace winrt::Golf_Chip_WinRT::implementation
         for (int i = 0; i < accSettings.size(); i++)  m_accelerometerSettings.Append(make<GolfChipSettingsDisplay>(accSettings[i]));
         for (int i = 0; i < gyrSettings.size(); i++)  m_gyroscopeSettings.Append(make<GolfChipSettingsDisplay>(gyrSettings[i]));
         for (int i = 0; i < magSettings.size(); i++)  m_magnetometerSettings.Append(make<GolfChipSettingsDisplay>(magSettings[i]));
+
+        amountOfSettings = accSettings.size() + gyrSettings.size() + magSettings.size();
     }
 #pragma endregion
 
@@ -445,15 +459,22 @@ namespace winrt::Golf_Chip_WinRT::implementation
                 //as well as the SensorSettings arrays on this page.
 
                 //TODO: Should put some confirmation that the characteristics are actually found before trying to read them
+                //TODO: Probably don't need to save the acc characteristics anymore
                 auto accCharacteristicValue = co_await GlobalGolfChip::m_golfChip->getInformationCharacteristic().ReadValueAsync();
                 auto gyroCharacteristicValue = co_await characteristicResult.Characteristics().GetAt(GyroscopeSettingCharacteristicLocation).ReadValueAsync();
                 auto magCharacteristicValue = co_await characteristicResult.Characteristics().GetAt(MagnetometerSettingCharacteristicLocation).ReadValueAsync();
-
-                auto characteristicDataReader = Windows::Storage::Streams::DataReader::FromBuffer(accCharacteristicValue.Value());
                 
-                GlobalGolfChip::m_golfChip->getIMU()->setSensor("LSM9DS1_ACC", characteristicDataReader);
+                //Create the global instances for each sensor on the IMU, then create copies of these which are used to
+                //display setting information on this page.
+
+                //TODO: The names should be coming from the characteristics themselves, not hard coded in here.
+                GlobalGolfChip::m_golfChip->getIMU()->setSensor("LSM9DS1_ACC", Windows::Storage::Streams::DataReader::FromBuffer(accCharacteristicValue.Value()));
                 GlobalGolfChip::m_golfChip->getIMU()->setSensor("LSM9DS1_GYR", Windows::Storage::Streams::DataReader::FromBuffer(gyroCharacteristicValue.Value()));
                 GlobalGolfChip::m_golfChip->getIMU()->setSensor("LSM9DS1_MAG", Windows::Storage::Streams::DataReader::FromBuffer(magCharacteristicValue.Value()));
+
+                m_display_sensors[SensorType::ACCELEROMETER] = Sensor::SensorFactory("LSM9DS1_ACC", Windows::Storage::Streams::DataReader::FromBuffer(accCharacteristicValue.Value()));
+                m_display_sensors[SensorType::GYROSCOPE] = Sensor::SensorFactory("LSM9DS1_GYR", Windows::Storage::Streams::DataReader::FromBuffer(gyroCharacteristicValue.Value()));
+                m_display_sensors[SensorType::MAGNETOMETER] = Sensor::SensorFactory("LSM9DS1_MAG", Windows::Storage::Streams::DataReader::FromBuffer(magCharacteristicValue.Value()));
 
                 //After onnecting to the device, set the display to "settings mode" and stop the device watcher from enumerating.
                 DisplaySettingsMode();
@@ -499,4 +520,100 @@ namespace winrt::Golf_Chip_WinRT::implementation
         return formattedAddress;
     }
 
+}
+
+
+void winrt::Golf_Chip_WinRT::implementation::GolfChipSettings::SensorOption_SelectionChanged(winrt::Windows::Foundation::IInspectable const& sender, winrt::Windows::UI::Xaml::Controls::SelectionChangedEventArgs const& e)
+{
+    if (settingsLoaded == amountOfSettings)
+    {
+        //Since only OneWay binding is enabled, we need to manually updated the appropriate setting array.
+        //Doing this though, will in turn cause the XAML element to want to update again and we get stuck in
+        //a loop. To prevent this, before updating the setting array we decrement the settingsLoaded variable
+        //by 1 so that this block of code isn't immediately triggered again.
+
+        settingsLoaded--;
+        //auto yo = sender.as<winrt::Windows::UI::Xaml::Controls::ComboBox>().DataContext(); //This line gets the bound item in its current state
+        //auto yeet = unbox_value<Golf_Chip_WinRT::GolfChipSettingsDisplay>(yo).SelectedOption();
+        auto newOptionIndex = sender.as<winrt::Windows::UI::Xaml::Controls::ComboBox>().SelectedIndex();
+        hstring initialOption = unbox_value<hstring>(e.RemovedItems().GetAt(0));
+        //OutputDebugStringW((L"Removed the following setting: " + initialOption).c_str());
+        bool optionFound = false;
+
+
+        //Now that we have the new setting, cycle through all the current setting arrays until we find the one that was updated
+        //TODO: I'm positive there's a better way to do this, but for now I can't seem to get Two Way binding working the way I want
+        for (int i = 0; i < m_accelerometerSettings.Size(); i++)
+        {
+            //auto setting = m_accelerometerSettings.GetAt(i).as<GolfChipSettingsDisplay>().get();
+            auto setting = m_accelerometerSettings.GetAt(i).as<Golf_Chip_WinRT::GolfChipSettingsDisplay>();
+            if (setting.AvailableOptions().GetAt(setting.SelectedOption()).as<hstring>() == initialOption)
+            {
+                setting.SelectedOption(newOptionIndex);
+                optionFound = true;
+
+                //Need to check and see whether or not selecting the new option will have a cascading effect
+                //and cause other options to change (i.e. going from high pass filter off mode to high pass
+                //filter on mode will cause the HPF freq options to change)
+                if (m_display_sensors[SensorType::ACCELEROMETER]->optionCascade(static_cast<SensorSettingType>(setting.GetUnderlyingSetting())))
+                {
+                    //create a brand new sensor object with the new settings and update the appropriate settings vector
+                }
+                break;
+            }
+        }
+
+        if (!optionFound)
+        {
+            for (int i = 0; i < m_gyroscopeSettings.Size(); i++)
+            {
+                auto setting = m_gyroscopeSettings.GetAt(i).as<Golf_Chip_WinRT::GolfChipSettingsDisplay>();
+                if (setting.AvailableOptions().GetAt(setting.SelectedOption()).as<hstring>() == initialOption)
+                {
+                    setting.SelectedOption(newOptionIndex);
+                    optionFound = true;
+                    break;
+                }
+            }
+        }
+
+        if (!optionFound)
+        {
+            for (int i = 0; i < m_magnetometerSettings.Size(); i++)
+            {
+                auto setting = m_magnetometerSettings.GetAt(i).as<Golf_Chip_WinRT::GolfChipSettingsDisplay>();
+                //OutputDebugStringW((setting.SettingType() + L": ").c_str());
+                //OutputDebugStringW((setting.AvailableOptions().GetAt(setting.SelectedOption()).as<hstring>() + L"\n").c_str());
+                if (setting.AvailableOptions().GetAt(setting.SelectedOption()).as<hstring>() == initialOption)
+                {
+                    setting.SelectedOption(newOptionIndex);
+                    optionFound = true;
+                    break;
+                }
+            }
+        }
+        /*;
+        auto comboBoxParent = sender.as<winrt::Windows::UI::Xaml::Controls::ComboBox>().Parent().as<FrameworkElement>();
+        auto heehee = comboBoxParent.Parent().as<FrameworkElement>();
+        
+        OutputDebugStringW((L"The parent of the changed box is: " + heehee.Name() + L"\n").c_str());*/
+
+        //Attempt to cycle through each option to see if there's a difference
+       /* auto yo = m_accelerometerSettings.GetAt(2).as<Golf_Chip_WinRT::GolfChipSettingsDisplay>();
+        yo.SelectedOption(3);
+        m_accelerometerSettings.SetAt(2, box_value(yo));
+        for (int i = 0; i < m_accelerometerSettings.Size(); i++)
+        {
+            auto setting = m_accelerometerSettings.GetAt(i).as<Golf_Chip_WinRT::GolfChipSettingsDisplay>();
+            OutputDebugStringW((setting.SettingType() + L": ").c_str());
+            OutputDebugStringW((setting.AvailableOptions().GetAt(setting.SelectedOption()).as<hstring>() + L"\n").c_str());
+        }*/
+        //amountOfSettings--;
+        //auto yo = m_gyroscopeSettings.GetAt(2).as<Golf_Chip_WinRT::GolfChipSettingsDisplay>();
+        ////m_accelerometerSettings.Append(box_value(yo));
+        //yo.AvailableOptions().Clear();
+        
+    }
+    else settingsLoaded++;
+    
 }

@@ -12,6 +12,26 @@ LSM9DS1_ACC::LSM9DS1_ACC(winrt::Windows::Storage::Streams::DataReader inputData)
 	for (int i = 0; i < 18; i++) raw_settings[i] = inputData.ReadByte();
 	name = "LSM9DS1"; //Set the name
 
+	updateSettingVectors();
+}
+
+LSM9DS1_ACC::LSM9DS1_ACC(uint8_t* inputData)
+{
+	//same as the above constructor but takes a normal array of numbers
+	sensorType = SensorType::ACCELEROMETER;
+
+	//First copy and persist the raw data
+	for (int i = 0; i < 18; i++) raw_settings[i] = *(inputData + i);
+	name = "LSM9DS1"; //Set the name
+
+	updateSettingVectors();
+}
+
+void LSM9DS1_ACC::updateSettingVectors()
+{
+	//First, clear out the existing vector if it isn't empty
+	if (sensorSettings.size() > 0) sensorSettings.clear();
+
 	//TODO: Currently I'm manually setting all of the possibleSettingOptions vectors. I should utilize the chained
 	//enums to do this manually
 
@@ -213,6 +233,22 @@ SensorSettingOptions LSM9DS1_ACC::getRawSetting(SensorSettingType sensorSetting)
 	}
 }
 
+bool LSM9DS1_ACC::optionCascade(SensorSettingType sensorSetting)
+{
+	//this function looks at the incoming sensorSetting (which is being changed from elsewhere)
+	//and returns true if changing this setting will cause the options for other settings to change.
+	//For example, turning off a high pass filter in Filter Settings will cause the HPF_Freq options
+	//to change.
+	switch(sensorSetting)
+	{
+	case SensorSettingType::ACC_FULLSCALE_RANGE: return false; //TODO: In the future, change this to true if low power mode gets implemented
+	case SensorSettingType::FILTER_SETTINGS: return true;
+	case SensorSettingType::OPERATING_MODE: return true; //This won't actually effect the ACC itself, but can effect the Gyroscope
+	case SensorSettingType::OUTPUT_DATA_RATE: return true; //This won't actually effect the ACC itself, but can effect the Gyroscope ODR
+	default: return false;
+	}
+}
+
 bool LSM9DS1_ACC::GyroActive()
 {
 	if (getRawSetting(SensorSettingType::OPERATING_MODE) == SensorSettingOptions::OM_ACC_AND_GYR) return true;
@@ -228,6 +264,14 @@ LSM9DS1_GYR::LSM9DS1_GYR(winrt::Windows::Storage::Streams::DataReader inputData)
 	//First copy and persist the raw data
 	for (int i = 0; i < 18; i++) raw_settings[i] = inputData.ReadByte();
 	name = "LSM9DS1"; //Set the name
+
+	updateSettingVectors();
+}
+
+void LSM9DS1_GYR::updateSettingVectors()
+{
+	//First, clear out the existing vector if it isn't empty
+	if (sensorSettings.size() > 0) sensorSettings.clear();
 
 	//TODO: Currently I'm manually setting all of the possibleSettingOptions vectors. I should utilize the chained
 	//enums to do this manually
@@ -288,7 +332,7 @@ LSM9DS1_GYR::LSM9DS1_GYR(winrt::Windows::Storage::Streams::DataReader inputData)
 			HPFFreq.possibleSettingOptions = { SensorSettingOptions::HPF_0_1_HZ, SensorSettingOptions::HPF_0_2_HZ, SensorSettingOptions::HPF_0_5_HZ, SensorSettingOptions::HPF_1_HZ, SensorSettingOptions::HPF_2_HZ, SensorSettingOptions::HPF_4_HZ, SensorSettingOptions::HPF_8_HZ, SensorSettingOptions::HPF_15_HZ, SensorSettingOptions::HPF_30_HZ, SensorSettingOptions::HPF_57_HZ };
 			break;
 		}
-		
+
 		HPFFreq.currentSettingOption = getRawSetting(SensorSettingType::HIGH_PASS_FILTER_FREQ);
 	}
 	else
@@ -573,6 +617,12 @@ SensorSettingOptions LSM9DS1_GYR::getRawSetting(SensorSettingType sensorSetting)
 	}
 }
 
+bool LSM9DS1_GYR::optionCascade(SensorSettingType sensorSetting)
+{
+	//TODO: Need to implement
+	return false;
+}
+
 //Magnetometer Functions
 LSM9DS1_MAG::LSM9DS1_MAG(winrt::Windows::Storage::Streams::DataReader inputData)
 {
@@ -582,6 +632,14 @@ LSM9DS1_MAG::LSM9DS1_MAG(winrt::Windows::Storage::Streams::DataReader inputData)
 	//First copy and persist the raw data
 	for (int i = 0; i < 18; i++) raw_settings[i] = inputData.ReadByte();
 	name = "LSM9DS1"; //Set the name
+
+	updateSettingVectors();
+}
+
+void LSM9DS1_MAG::updateSettingVectors()
+{
+	//First, clear out the existing vector if it isn't empty
+	if (sensorSettings.size() > 0) sensorSettings.clear();
 
 	//TODO: Currently I'm manually setting all of the possibleSettingOptions vectors. I should utilize the chained
 	//enums to do this manually
@@ -712,4 +770,10 @@ SensorSettingOptions LSM9DS1_MAG::getRawSetting(SensorSettingType sensorSetting)
 		case 0x111101: return SensorSettingOptions::OM_MAG_UPXYZ_SC;
 		}
 	}
+}
+
+bool LSM9DS1_MAG::optionCascade(SensorSettingType sensorSetting)
+{
+	//TODO: Need to implement
+	return false;
 }
