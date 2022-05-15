@@ -539,7 +539,6 @@ void winrt::Golf_Chip_WinRT::implementation::GolfChipSettings::SensorOption_Sele
         //OutputDebugStringW((L"Removed the following setting: " + initialOption).c_str());
         bool optionFound = false;
 
-
         //Now that we have the new setting, cycle through all the current setting arrays until we find the one that was updated
         //TODO: I'm positive there's a better way to do this, but for now I can't seem to get Two Way binding working the way I want
         for (int i = 0; i < m_accelerometerSettings.Size(); i++)

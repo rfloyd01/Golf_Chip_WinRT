@@ -68,7 +68,7 @@ void LSM9DS1_ACC::updateSettingVectors()
 	//High-pass Filter Frequency Setting (the options depend on wheter or not the HPF is actually turned on)
 	SensorSettings HPFFreq;
 	HPFFreq.sensorSettingType = SensorSettingType::HIGH_PASS_FILTER_FREQ;
-	if (raw_settings[2] & 0x1)
+	if (raw_settings[2] & 0b1)
 	{
 		HPFFreq.possibleSettingOptions = { SensorSettingOptions::HPF_ODR_OVER_50_HZ, SensorSettingOptions::HPF_ODR_OVER_100_HZ, SensorSettingOptions::HPF_ODR_OVER_9_HZ, SensorSettingOptions::HPF_ODR_OVER_400_HZ };
 		HPFFreq.currentSettingOption = getRawSetting(SensorSettingType::HIGH_PASS_FILTER_FREQ);
@@ -83,7 +83,7 @@ void LSM9DS1_ACC::updateSettingVectors()
 	//Low-pass Filter Frequency Setting (the options depend on wheter or not the LPF is in manual or auto mode)
 	SensorSettings LPFFreq;
 	LPFFreq.sensorSettingType = SensorSettingType::LOW_PASS_FILTER_FREQ;
-	if (raw_settings[2] & 0x100)
+	if (raw_settings[2] & 0b100)
 	{
 		LPFFreq.possibleSettingOptions = { SensorSettingOptions::LPF_408_HZ, SensorSettingOptions::LPF_211_HZ, SensorSettingOptions::LPF_105_HZ, SensorSettingOptions::LPF_50_HZ };
 	}
@@ -92,10 +92,26 @@ void LSM9DS1_ACC::updateSettingVectors()
 		//when in automatic mode, there's only one frequency option and it depends on the current ODR.
 		switch (getCurrentSettingOption(SensorSettingType::OUTPUT_DATA_RATE))
 		{
-		case SensorSettingOptions::ODR_476_HZ: LPFFreq.possibleSettingOptions = { SensorSettingOptions::LPF_211_HZ };
-		case SensorSettingOptions::ODR_238_HZ: LPFFreq.possibleSettingOptions = { SensorSettingOptions::LPF_105_HZ };
-		case SensorSettingOptions::ODR_119_HZ: LPFFreq.possibleSettingOptions = { SensorSettingOptions::LPF_50_HZ };
-		default: LPFFreq.possibleSettingOptions = { SensorSettingOptions::LPF_408_HZ };
+		case SensorSettingOptions::ODR_476_HZ:
+		{
+			LPFFreq.possibleSettingOptions = { SensorSettingOptions::LPF_211_HZ };
+			break;
+		}
+		case SensorSettingOptions::ODR_238_HZ:
+		{
+			LPFFreq.possibleSettingOptions = { SensorSettingOptions::LPF_105_HZ };
+			break;
+		}
+		case SensorSettingOptions::ODR_119_HZ:
+		{
+			LPFFreq.possibleSettingOptions = { SensorSettingOptions::LPF_50_HZ };
+			break;
+		}
+		default:
+		{
+			LPFFreq.possibleSettingOptions = { SensorSettingOptions::LPF_408_HZ };
+			break;
+		}
 		}
 	}
 	LPFFreq.currentSettingOption = getRawSetting(SensorSettingType::LOW_PASS_FILTER_FREQ);
