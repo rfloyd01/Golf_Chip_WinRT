@@ -13,6 +13,8 @@ public:
 	LSM9DS1_ACC(uint8_t* inputData);
 	double getConversionFactor();
 	bool optionCascade(SensorSettingType sensorSetting);
+	int getRawSettingLocation(SensorSettingType sensorSetting);
+	uint8_t getByte(SensorSettingOptions sensorOption);
 
 private:
 	void updateSettingVectors();
@@ -24,8 +26,11 @@ class LSM9DS1_GYR : public Sensor
 {
 public:
 	LSM9DS1_GYR(winrt::Windows::Storage::Streams::DataReader inputData);
+	LSM9DS1_GYR(uint8_t* inputData);
 	double getConversionFactor();
 	bool optionCascade(SensorSettingType sensorSetting);
+	int getRawSettingLocation(SensorSettingType sensorSetting);
+	uint8_t getByte(SensorSettingOptions sensorOption);
 
 private:
 	void updateSettingVectors();
@@ -36,8 +41,11 @@ class LSM9DS1_MAG : public Sensor
 {
 public:
 	LSM9DS1_MAG(winrt::Windows::Storage::Streams::DataReader inputData);
+	LSM9DS1_MAG(uint8_t* inputData);
 	double getConversionFactor();
 	bool optionCascade(SensorSettingType sensorSetting);
+	int getRawSettingLocation(SensorSettingType sensorSetting);
+	uint8_t getByte(SensorSettingOptions sensorOption);
 
 private:
 	void updateSettingVectors();

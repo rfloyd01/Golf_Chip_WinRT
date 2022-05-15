@@ -16,11 +16,14 @@ public:
 	virtual double getConversionFactor() = 0;
 	SensorSettingOptions getCurrentSettingOption(SensorSettingType sensorSetting);
 	static std::shared_ptr<Sensor> SensorFactory(std::string sensorName, winrt::Windows::Storage::Streams::DataReader sensorSettings);
+	static std::shared_ptr<Sensor> SensorFactory(std::string sensorName, uint8_t* sensorSettings);
 	SensorType getSensorType() { return sensorType; }
 	uint8_t* getRawSettings() { return raw_settings; }
+	virtual int getRawSettingLocation(SensorSettingType sensorSetting) = 0;
 	std::vector<SensorSettings> getSensorSettings();
 	std::string getName() { return name; }
 	virtual bool optionCascade(SensorSettingType sensorSetting) = 0;
+	virtual uint8_t getByte(SensorSettingOptions sensorOption) = 0;
 
 protected:
 	virtual SensorSettingOptions getRawSetting(SensorSettingType sensorSetting) = 0; //Every sensor may have a slightly different raw settings byte array so will need a different way to read it

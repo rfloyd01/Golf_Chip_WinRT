@@ -525,14 +525,13 @@ namespace winrt::Golf_Chip_WinRT::implementation
 
 void winrt::Golf_Chip_WinRT::implementation::GolfChipSettings::SensorOption_SelectionChanged(winrt::Windows::Foundation::IInspectable const& sender, winrt::Windows::UI::Xaml::Controls::SelectionChangedEventArgs const& e)
 {
+    auto yo = unbox_value<Golf_Chip_WinRT::GolfChipSettingsDisplay>(sender.as<winrt::Windows::UI::Xaml::Controls::ComboBox>().DataContext()); //Debugging line to figure out what is calling this function
+    SensorSettingType heeeeooo;
+    if (yo != nullptr) heeeeooo = static_cast<SensorSettingType>(yo.GetUnderlyingSetting());
     if (settingsLoaded == amountOfSettings)
     {
         //Since only OneWay binding is enabled, we need to manually updated the appropriate setting array.
-        //Doing this though, will in turn cause the XAML element to want to update again and we get stuck in
-        //a loop. To prevent this, before updating the setting array we decrement the settingsLoaded variable
-        //by 1 so that this block of code isn't immediately triggered again.
-
-        settingsLoaded--;
+        
         //auto yo = sender.as<winrt::Windows::UI::Xaml::Controls::ComboBox>().DataContext(); //This line gets the bound item in its current state
         //auto yeet = unbox_value<Golf_Chip_WinRT::GolfChipSettingsDisplay>(yo).SelectedOption();
         auto newOptionIndex = sender.as<winrt::Windows::UI::Xaml::Controls::ComboBox>().SelectedIndex();
@@ -551,14 +550,51 @@ void winrt::Golf_Chip_WinRT::implementation::GolfChipSettings::SensorOption_Sele
             {
                 setting.SelectedOption(newOptionIndex);
                 optionFound = true;
+                SensorSettingType selectedSetting = static_cast<SensorSettingType>(setting.GetUnderlyingSetting());
 
                 //Need to check and see whether or not selecting the new option will have a cascading effect
                 //and cause other options to change (i.e. going from high pass filter off mode to high pass
                 //filter on mode will cause the HPF freq options to change)
-                if (m_display_sensors[SensorType::ACCELEROMETER]->optionCascade(static_cast<SensorSettingType>(setting.GetUnderlyingSetting())))
+                if (m_display_sensors[SensorType::ACCELEROMETER]->optionCascade(selectedSetting))
                 {
-                    //create a brand new sensor object with the new settings and update the appropriate settings vector
+                    //create a brand new sensor object with the new settings and update the appropriate settings vector.
+                    //First, get the current settings
+                    uint8_t* currentRawSettings = m_display_sensors[SensorType::ACCELEROMETER]->getRawSettings();
+                    uint8_t crs[18] = { 0 };
+
+                    for (int i = 0; i < 18; i++) crs[i] = *(currentRawSettings + i);
+
+                    /*OutputDebugStringA("Here's the new raw settings data: ");
+                    for (int i = 0; i < 18; i++) OutputDebugStringA((std::to_string(crs[i]) + " ").c_str());
+                    OutputDebugStringA("\n");*/
+
+                    //update the appropriate setting that was changed
+                    SensorSettingOptions newOption = static_cast<SensorSettingOptions>(setting.GetUnderlyingOption(newOptionIndex));
+                    crs[m_display_sensors[SensorType::ACCELEROMETER]->getRawSettingLocation(selectedSetting)] = m_display_sensors[SensorType::ACCELEROMETER]->getByte(newOption);
+
+                    //Create a new sensor from the updated byte array and overwrite the existing one
+                    m_display_sensors[SensorType::ACCELEROMETER].reset();
+                    m_display_sensors[SensorType::ACCELEROMETER] = Sensor::SensorFactory("LSM9DS1_ACC", crs);
+
+                    /*OutputDebugStringA("Here's the new raw settings data: ");
+                    for (int i = 0; i < 18; i++) OutputDebugStringA((std::to_string(crs[i]) + " ").c_str());
+                    OutputDebugStringA("\n");*/
+
+                    //update the display vector
+                    m_accelerometerSettings.Clear();
+                    auto newAccSettings = m_display_sensors[SensorType::ACCELEROMETER]->getSensorSettings();
+                    for (int i = 0; i < newAccSettings.size(); i++)
+                    {
+                        m_accelerometerSettings.Append(make<GolfChipSettingsDisplay>(newAccSettings[i]));
+                        //OutputDebugStringW(("Made it here babyyy"));
+                    }
+
+                    //The m_accelerometerSettings.Clear() method causes the combo box on selection changed event handler to get called for
+                    //each setting in the array. The event handler will get called again for each of these settings once it gets re-created.
+                    //Because of this we need to subtract 2 * (the settings array size) from the settingsLoaded variable.
+                    settingsLoaded -= (newAccSettings.size() * 2);
                 }
+                
                 break;
             }
         }
@@ -582,6 +618,7 @@ void winrt::Golf_Chip_WinRT::implementation::GolfChipSettings::SensorOption_Sele
             for (int i = 0; i < m_magnetometerSettings.Size(); i++)
             {
                 auto setting = m_magnetometerSettings.GetAt(i).as<Golf_Chip_WinRT::GolfChipSettingsDisplay>();
+                hstring supBaby = setting.AvailableOptions().GetAt(setting.SelectedOption()).as<hstring>();
                 //OutputDebugStringW((setting.SettingType() + L": ").c_str());
                 //OutputDebugStringW((setting.AvailableOptions().GetAt(setting.SelectedOption()).as<hstring>() + L"\n").c_str());
                 if (setting.AvailableOptions().GetAt(setting.SelectedOption()).as<hstring>() == initialOption)

@@ -249,6 +249,71 @@ bool LSM9DS1_ACC::optionCascade(SensorSettingType sensorSetting)
 	}
 }
 
+int LSM9DS1_ACC::getRawSettingLocation(SensorSettingType sensorSetting)
+{
+	//returns the location in the raw settings array of the given setting
+	switch (sensorSetting)
+	{
+	case SensorSettingType::OUTPUT_DATA_RATE: return 0;
+	case SensorSettingType::ACC_FULLSCALE_RANGE: return 1;
+	case SensorSettingType::FILTER_SETTINGS: return 2;
+	case SensorSettingType::HIGH_PASS_FILTER_FREQ: return 3;
+	case SensorSettingType::LOW_PASS_FILTER_FREQ: return 4;
+	case SensorSettingType::OPERATING_MODE: return 5;
+	default: return -1; //incorrect setting type
+	}
+}
+
+uint8_t LSM9DS1_ACC::getByte(SensorSettingOptions sensorOption)
+{
+	//this function is the opposite of the getRawSetting function. It takes in the
+	//desired setting option and returns the raw option in byte form
+	switch (sensorOption)
+	{
+		//ODR Options
+	case SensorSettingOptions::ODR_N_A: return 0b000;
+	case SensorSettingOptions::ODR_10_HZ: //fall through to below option
+	case SensorSettingOptions::ODR_14_9_HZ: return 0b001;
+	case SensorSettingOptions::ODR_50_HZ: //fall through to below option
+	case SensorSettingOptions::ODR_59_5_HZ: return 0b010;
+	case SensorSettingOptions::ODR_119_HZ: return 0b011;
+	case SensorSettingOptions::ODR_238_HZ: return 0b100;
+	case SensorSettingOptions::ODR_476_HZ: return 0b101;
+	case SensorSettingOptions::ODR_952_HZ: return 0b110;
+
+		//Fullscale Range Options
+	case SensorSettingOptions::ACC_FSR_2_G: return 0b00;
+	case SensorSettingOptions::ACC_FSR_16_G: return 0b001;
+	case SensorSettingOptions::ACC_FSR_4_G: return 0b10;
+	case SensorSettingOptions::ACC_FSR_8_G: return 0b11;
+	
+		//Filter Settings
+	case SensorSettingOptions::FS_LSM9DS1_ACC_AUTO_NO_FILTERS: return 0b000;
+	case SensorSettingOptions::FS_LSM9DS1_ACC_MANUAL_NO_FILTERS: return 0b100;
+	case SensorSettingOptions::FS_LSM9DS1_ACC_AUTO_LPF2: return 0b010;
+	case SensorSettingOptions::FS_LSM9DS1_ACC_MANUAL_LPF2: return 0b110;
+	case SensorSettingOptions::FS_LSM9DS1_ACC_AUTO_HPF: return 0b001;
+	case SensorSettingOptions::FS_LSM9DS1_ACC_MANUAL_HPF: return 0b101;
+
+		//Highpass Filter Frequency Options
+	case SensorSettingOptions::HPF_ODR_OVER_50_HZ: return 0b00;
+	case SensorSettingOptions::HPF_ODR_OVER_100_HZ: return 0b01;
+	case SensorSettingOptions::HPF_ODR_OVER_9_HZ: return 0b10;
+	case SensorSettingOptions::HPF_ODR_OVER_400_HZ: return 0b11;
+
+		//Lowpass Filter Frequency Options
+	case SensorSettingOptions::LPF_408_HZ: return 0b00;
+	case SensorSettingOptions::LPF_211_HZ: return 0b01;
+	case SensorSettingOptions::LPF_105_HZ: return 0b10;
+	case SensorSettingOptions::LPF_50_HZ: return 0b11;
+
+		//Operating Mode Options
+	case SensorSettingOptions::OM_ACC_ONLY: return 0b0;
+	case SensorSettingOptions::OM_ACC_AND_GYR: return 0b1;
+	}
+	return 0xF; //this will indicate an error, none of the above return codes match 0b1111
+}
+
 bool LSM9DS1_ACC::GyroActive()
 {
 	if (getRawSetting(SensorSettingType::OPERATING_MODE) == SensorSettingOptions::OM_ACC_AND_GYR) return true;
@@ -263,6 +328,18 @@ LSM9DS1_GYR::LSM9DS1_GYR(winrt::Windows::Storage::Streams::DataReader inputData)
 
 	//First copy and persist the raw data
 	for (int i = 0; i < 18; i++) raw_settings[i] = inputData.ReadByte();
+	name = "LSM9DS1"; //Set the name
+
+	updateSettingVectors();
+}
+
+LSM9DS1_GYR::LSM9DS1_GYR(uint8_t* inputData)
+{
+	//Same as the above constructor, but takes a standard array
+	sensorType = SensorType::GYROSCOPE;
+
+	//First copy and persist the raw data
+	for (int i = 0; i < 18; i++) raw_settings[i] = *(inputData + i);
 	name = "LSM9DS1"; //Set the name
 
 	updateSettingVectors();
@@ -623,6 +700,27 @@ bool LSM9DS1_GYR::optionCascade(SensorSettingType sensorSetting)
 	return false;
 }
 
+int LSM9DS1_GYR::getRawSettingLocation(SensorSettingType sensorSetting)
+{
+	//returns the location in the raw settings array of the given setting
+	switch (sensorSetting)
+	{
+	case SensorSettingType::OUTPUT_DATA_RATE: return 0;
+	case SensorSettingType::ACC_FULLSCALE_RANGE: return 1;
+	case SensorSettingType::FILTER_SETTINGS: return 2;
+	case SensorSettingType::HIGH_PASS_FILTER_FREQ: return 3;
+	case SensorSettingType::LOW_PASS_FILTER_FREQ: return 4;
+	case SensorSettingType::OPERATING_MODE: return 5;
+	default: return -1; //incorrect setting type
+	}
+}
+
+uint8_t LSM9DS1_GYR::getByte(SensorSettingOptions sensorOption)
+{
+	//TODO: Need to implement
+	return 0;
+}
+
 //Magnetometer Functions
 LSM9DS1_MAG::LSM9DS1_MAG(winrt::Windows::Storage::Streams::DataReader inputData)
 {
@@ -631,6 +729,18 @@ LSM9DS1_MAG::LSM9DS1_MAG(winrt::Windows::Storage::Streams::DataReader inputData)
 
 	//First copy and persist the raw data
 	for (int i = 0; i < 18; i++) raw_settings[i] = inputData.ReadByte();
+	name = "LSM9DS1"; //Set the name
+
+	updateSettingVectors();
+}
+
+LSM9DS1_MAG::LSM9DS1_MAG(uint8_t* inputData)
+{
+	//Same as the above constructor, but takes a standard array
+	sensorType = SensorType::MAGNETOMETER;
+
+	//First copy and persist the raw data
+	for (int i = 0; i < 18; i++) raw_settings[i] = *(inputData + i);
 	name = "LSM9DS1"; //Set the name
 
 	updateSettingVectors();
@@ -776,4 +886,25 @@ bool LSM9DS1_MAG::optionCascade(SensorSettingType sensorSetting)
 {
 	//TODO: Need to implement
 	return false;
+}
+
+int LSM9DS1_MAG::getRawSettingLocation(SensorSettingType sensorSetting)
+{
+	//returns the location in the raw settings array of the given setting
+	switch (sensorSetting)
+	{
+	case SensorSettingType::OUTPUT_DATA_RATE: return 0;
+	case SensorSettingType::ACC_FULLSCALE_RANGE: return 1;
+	case SensorSettingType::FILTER_SETTINGS: return 2;
+	case SensorSettingType::HIGH_PASS_FILTER_FREQ: return 3;
+	case SensorSettingType::LOW_PASS_FILTER_FREQ: return 4;
+	case SensorSettingType::OPERATING_MODE: return 5;
+	default: return -1; //incorrect setting type
+	}
+}
+
+uint8_t LSM9DS1_MAG::getByte(SensorSettingOptions sensorOption)
+{
+	//TODO: Need to implement
+	return 0;
 }
