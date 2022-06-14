@@ -28,7 +28,7 @@ namespace DX
 		void Present();
 
 		//SETTERS
-		void SetSwapChainPanel(winrt::Windows::UI::Xaml::Controls::SwapChainPanel panel);
+		void SetSwapChainPanel(winrt::Windows::UI::Xaml::Controls::SwapChainPanel const& panel);
 		void SetLogicalSize(winrt::Windows::Foundation::Size logicalSize);
 		void SetCurrentOrientation(winrt::Windows::Graphics::Display::DisplayOrientations currentOrientation); //this is for when a something smart phone is flipped horizontally, probably don't need
 		void SetDpi(float dpi);
@@ -96,7 +96,7 @@ namespace DX
 		//Note: the guide only uses a single XAML page so this value never changes, however, my app will have different pages
 		//that have different swap chain panels so this variable will be changed periodically. I should take note that this
 		//doesn't mess anything up.
-		winrt::Windows::UI::Xaml::Controls::SwapChainPanel     m_swapChainPanel;
+		winrt::Windows::UI::Xaml::Controls::SwapChainPanel     m_swapChainPanel; //TODO: Does this need to become a pointer?
 
 		//Cached device properties
 		D3D_FEATURE_LEVEL                                      m_d3dFeatureLevel;
