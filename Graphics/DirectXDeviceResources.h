@@ -96,7 +96,7 @@ namespace DX
 		//Note: the guide only uses a single XAML page so this value never changes, however, my app will have different pages
 		//that have different swap chain panels so this variable will be changed periodically. I should take note that this
 		//doesn't mess anything up.
-		winrt::Windows::UI::Xaml::Controls::SwapChainPanel     m_swapChainPanel; //TODO: Does this need to become a pointer?
+		winrt::Windows::UI::Xaml::Controls::SwapChainPanel    m_swapChainPanel; //TODO: Does this need to become a pointer?
 
 		//Cached device properties
 		D3D_FEATURE_LEVEL                                      m_d3dFeatureLevel;
@@ -118,5 +118,16 @@ namespace DX
 
 		//The IDeviceNotify can be held directly as it owns the DirectXDeviceResources.
 		IDeviceNotify*                                         m_deviceNotify;
+	};
+}
+
+namespace winrt::Golf_Chip_WinRT
+{
+	struct GlobalDirectXDeviceResources
+	{
+		//This struct holds the one global instance of DirextXDeviceResources. It's created as a shared pointer
+		//so that it can be accessed by multiple pages simultaneously. This global instance
+		//is created upon startup of the app.
+		static std::shared_ptr<DX::DirectXDeviceResources> m_deviceResources;
 	};
 }

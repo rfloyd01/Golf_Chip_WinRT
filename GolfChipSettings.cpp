@@ -5,6 +5,7 @@
 #include "GolfChipSettingsDisplay.h"
 #include "GolfChip_Files/GolfChip.h"
 #include "GolfChip_Files/Sensors/Sensor.h"
+#include "Graphics/DirectXDeviceResources.h"
 
 using namespace winrt;
 using namespace Windows::Devices::Bluetooth;

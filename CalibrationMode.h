@@ -18,6 +18,7 @@ namespace winrt::Golf_Chip_WinRT::implementation
         //void Page_Loaded(winrt::Windows::Foundation::IInspectable const& sender, winrt::Windows::UI::Xaml::RoutedEventArgs const& e);
 
         //fire_and_forget animationLoop();
+        void swapChainPanel_CompositionScaleChanged(winrt::Windows::UI::Xaml::Controls::SwapChainPanel const& sender, winrt::Windows::Foundation::IInspectable const& args);
     };
 }
 

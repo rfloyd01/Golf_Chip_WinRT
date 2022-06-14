@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "GolfChip.h"
 
+//Create the global instance of the GolfChip class
 std::shared_ptr<GolfChip> winrt::Golf_Chip_WinRT::GlobalGolfChip::m_golfChip{ std::make_shared<GolfChip>() };
 
 GolfChip::GolfChip()

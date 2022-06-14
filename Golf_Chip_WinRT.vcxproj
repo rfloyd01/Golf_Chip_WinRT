@@ -127,6 +127,7 @@
     <ClInclude Include="GolfChip_Files\Sensors\Sensor.h" />
     <ClInclude Include="GolfChip_Files\Sensors\SensorSettings.h" />
     <ClInclude Include="Graphics\DirectXDeviceResources.h" />
+    <ClInclude Include="Graphics\DirectXSample.h" />
     <ClInclude Include="MainPage.h">
       <DependentUpon>MainPage.xaml</DependentUpon>
       <SubType>Code</SubType>

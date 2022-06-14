@@ -3,6 +3,7 @@
 #if __has_include("CalibrationMode.g.cpp")
 #include "CalibrationMode.g.cpp"
 #endif
+#include "Graphics/DirectXDeviceResources.h"
 
 using namespace winrt;
 using namespace Windows::UI::Xaml;
@@ -11,6 +12,17 @@ using namespace Windows::Foundation;
 
 namespace winrt::Golf_Chip_WinRT::implementation
 {
+	CalibrationMode::CalibrationMode()
+	{
+		//swapChainPanel().CompositionScaleChanged({ this, &CalibrationMode::swapChainPanel_CompositionScaleChanged });
+		//OutputDebugStringW(L"Calibration mode page has been initialized");
+	}
+
+	void CalibrationMode::swapChainPanel_CompositionScaleChanged(winrt::Windows::UI::Xaml::Controls::SwapChainPanel const& sender, winrt::Windows::Foundation::IInspectable const& args)
+	{
+		GlobalDirectXDeviceResources::m_deviceResources->SetCompositionScale(sender.CompositionScaleX(), sender.CompositionScaleY());
+	}
+
 	void CalibrationMode::MainPageButton_Click()
 	{
 		this->Frame().Navigate(xaml_typename<MainPage>());
@@ -27,6 +39,10 @@ namespace winrt::Golf_Chip_WinRT::implementation
 		//When we navigate to the page, check to see if we're currently connected to
 		//a BLE device and then display the approriate view.
 		OutputDebugStringW(L"Just navigated to the calibration page.\n");
+
+		//Need to set up the SwapChainPanel in the DirectXDeviceResources to point to the SwapChainPanel
+		//on this Xaml page
+		GlobalDirectXDeviceResources::m_deviceResources->SetSwapChainPanel(swapChainPanel());
 	}
 
 	/*void CalibrationMode::Page_Loaded(winrt::Windows::Foundation::IInspectable const& sender, winrt::Windows::UI::Xaml::RoutedEventArgs const& e)
@@ -177,8 +193,6 @@ namespace winrt::Golf_Chip_WinRT::implementation
 		swapChain->Present(1, 0);
 	}
 
-	CalibrationMode::CalibrationMode()
-	{
-		
-	}
 }
+
+

@@ -51,6 +51,9 @@ namespace ScreenRotation
     );
 };
 
+//Create the global instance of the DirectXDeviceResources
+std::shared_ptr<DX::DirectXDeviceResources> winrt::Golf_Chip_WinRT::GlobalDirectXDeviceResources::m_deviceResources{ std::make_shared<DX::DirectXDeviceResources>() };
+
 //Constructor
 DX::DirectXDeviceResources::DirectXDeviceResources() :
     m_screenViewport(),
@@ -63,8 +66,12 @@ DX::DirectXDeviceResources::DirectXDeviceResources() :
     m_dpi(-1.0f),
     m_compositionScaleX(1.0f),
     m_compositionScaleY(1.0f),
-    m_deviceNotify(nullptr)
+    m_deviceNotify(nullptr),
+    m_swapChainPanel(nullptr)
 {
+    //need to create a null StackChainPanel when the DeviceResources are initialized
+    m_swapChainPanel = nullptr;
+
     CreateDeviceIndependentResources();
     CreateDeviceResources();
 }
@@ -257,7 +264,7 @@ void DX::DirectXDeviceResources::CreateWindowSizeDependentResources()
         swapChainDesc.BufferCount = 2; // Use double-buffering to minimize latency.
         swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL; // All Windows Store apps must use this SwapEffect.
         swapChainDesc.Flags = 0;
-        swapChainDesc.Scaling = DXGI_SCALING_NONE;
+        swapChainDesc.Scaling = DXGI_SCALING_STRETCH;
         swapChainDesc.AlphaMode = DXGI_ALPHA_MODE_IGNORE;
 
         //This sequence obtains the DXGI factory that was used to create the Direct3D device above
@@ -280,6 +287,9 @@ void DX::DirectXDeviceResources::CreateWindowSizeDependentResources()
             )
         );
 
+        auto yote = 5;
+        auto yeet = m_swapChain.get();
+
         //Associate swap chain with SwapChainPanel
         //UI changes will need to be dispatched back to the UI thread
         //TODO: I had to get a little creative to not have any errors in the below 7 lines, may need to come back to this
@@ -287,7 +297,11 @@ void DX::DirectXDeviceResources::CreateWindowSizeDependentResources()
             {
                 //Get backing native interface for SwapChainPanel
                 winrt::com_ptr<ISwapChainPanelNative> panelNative;
-                winrt::check_hresult(reinterpret_cast<::IUnknown*>(&m_swapChainPanel)->QueryInterface(IID_PPV_ARGS(&panelNative)));
+                //winrt::check_hresult(reinterpret_cast<::IUnknown*>(&m_swapChainPanel)->QueryInterface(IID_PPV_ARGS(&panelNative)));
+                
+                ::IUnknown* panelInspectable = (::IUnknown*) reinterpret_cast<::IUnknown*>(&m_swapChainPanel);
+                panelInspectable->QueryInterface(__uuidof(ISwapChainPanelNative), (void**)&panelNative);
+
                 winrt::check_hresult(panelNative->SetSwapChain(m_swapChain.get()));
             });
 
