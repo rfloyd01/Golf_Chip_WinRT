@@ -25,6 +25,7 @@
 #include <winrt/Windows.UI.Xaml.Media.Imaging.h>
 #include <winrt/Windows.UI.Xaml.Navigation.h>
 #include <ctime>
+#include <chrono>
 
 #include <d3d11_4.h>
 #include <d2d1_1.h>

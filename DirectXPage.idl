@@ -1,0 +1,9 @@
+namespace Golf_Chip_WinRT
+{
+    [default_interface]
+    runtimeclass DirectXPage : Windows.UI.Xaml.Controls.Page
+    {
+        DirectXPage();
+        Int32 MyProperty;
+    }
+}

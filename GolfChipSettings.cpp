@@ -156,6 +156,7 @@ namespace winrt::Golf_Chip_WinRT::implementation
         //show all of the buttons and lists necessary for us to connect to a device
         DisconnectButton().Visibility(Visibility::Collapsed);
         SensorSettings().Visibility(Visibility::Collapsed);
+        UpdateSettingsButton().Visibility(Visibility::Collapsed);
 
         ConnectButton().Visibility(Visibility::Visible);
         BLEScanner().Visibility(Visibility::Visible);
@@ -169,6 +170,7 @@ namespace winrt::Golf_Chip_WinRT::implementation
         //show all of the settings associated with the current device
         DisconnectButton().Visibility(Visibility::Visible);
         SensorSettings().Visibility(Visibility::Visible);
+        UpdateSettingsButton().Visibility(Visibility::Visible);
 
         ConnectButton().Visibility(Visibility::Collapsed);
         BLEScanner().Visibility(Visibility::Collapsed);
@@ -181,16 +183,9 @@ namespace winrt::Golf_Chip_WinRT::implementation
     void GolfChipSettings::SetSettingVectors()
     {
         //Accelerometer first
-        /*auto accSettings = GlobalGolfChip::m_golfChip->getIMU()->getSensorSettings(SensorType::ACCELEROMETER);
-        auto gyrSettings = GlobalGolfChip::m_golfChip->getIMU()->getSensorSettings(SensorType::GYROSCOPE);
-        auto magSettings = GlobalGolfChip::m_golfChip->getIMU()->getSensorSettings(SensorType::MAGNETOMETER);*/
         auto accSettings = m_display_sensors[SensorType::ACCELEROMETER]->getSensorSettings();
         auto gyrSettings = m_display_sensors[SensorType::GYROSCOPE]->getSensorSettings();
         auto magSettings = m_display_sensors[SensorType::MAGNETOMETER]->getSensorSettings();
-
-        /*m_accName = winrt::to_hstring(GlobalGolfChip::m_golfChip->getIMU()->getSensor(SensorType::ACCELEROMETER)->getName());
-        m_gyrName = winrt::to_hstring(GlobalGolfChip::m_golfChip->getIMU()->getSensor(SensorType::GYROSCOPE)->getName());
-        m_magName = winrt::to_hstring(GlobalGolfChip::m_golfChip->getIMU()->getSensor(SensorType::MAGNETOMETER)->getName());*/
 
         m_accName = winrt::to_hstring(m_display_sensors[SensorType::ACCELEROMETER]->getName());
         m_gyrName = winrt::to_hstring(m_display_sensors[SensorType::GYROSCOPE]->getName());
@@ -205,6 +200,15 @@ namespace winrt::Golf_Chip_WinRT::implementation
         for (int i = 0; i < magSettings.size(); i++)  m_magnetometerSettings.Append(make<GolfChipSettingsDisplay>(magSettings[i]));
 
         amountOfSettings = accSettings.size() + gyrSettings.size() + magSettings.size();
+    }
+
+    void GolfChipSettings::UpdateSettingsButton_Click()
+    {
+        std::string currentSettings = "";
+        auto rawDataYo = m_display_sensors[0]->getRawSettings();
+        for (int i = 0; i < 18; i++) currentSettings += std::to_string(*(rawDataYo + i)) + " ";
+
+        NotifyUser(winrt::to_hstring("Current settings array is: " + currentSettings) , NotifyType::StatusMessage);
     }
 #pragma endregion
 
@@ -563,10 +567,6 @@ void winrt::Golf_Chip_WinRT::implementation::GolfChipSettings::SensorOption_Sele
 
                     for (int i = 0; i < 18; i++) crs[i] = *(currentRawSettings + i);
 
-                    /*OutputDebugStringA("Here's the new raw settings data: ");
-                    for (int i = 0; i < 18; i++) OutputDebugStringA((std::to_string(crs[i]) + " ").c_str());
-                    OutputDebugStringA("\n");*/
-
                     //update the appropriate setting that was changed
                     SensorSettingOptions newOption = static_cast<SensorSettingOptions>(setting.GetUnderlyingOption(newOptionIndex));
                     crs[m_display_sensors[SensorType::ACCELEROMETER]->getRawSettingLocation(selectedSetting)] = m_display_sensors[SensorType::ACCELEROMETER]->getByte(newOption);
@@ -575,23 +575,22 @@ void winrt::Golf_Chip_WinRT::implementation::GolfChipSettings::SensorOption_Sele
                     m_display_sensors[SensorType::ACCELEROMETER].reset();
                     m_display_sensors[SensorType::ACCELEROMETER] = Sensor::SensorFactory("LSM9DS1_ACC", crs);
 
-                    /*OutputDebugStringA("Here's the new raw settings data: ");
-                    for (int i = 0; i < 18; i++) OutputDebugStringA((std::to_string(crs[i]) + " ").c_str());
-                    OutputDebugStringA("\n");*/
-
                     //update the display vector
                     m_accelerometerSettings.Clear();
                     auto newAccSettings = m_display_sensors[SensorType::ACCELEROMETER]->getSensorSettings();
-                    for (int i = 0; i < newAccSettings.size(); i++)
-                    {
-                        m_accelerometerSettings.Append(make<GolfChipSettingsDisplay>(newAccSettings[i]));
-                        //OutputDebugStringW(("Made it here babyyy"));
-                    }
+                    for (int i = 0; i < newAccSettings.size(); i++)  m_accelerometerSettings.Append(make<GolfChipSettingsDisplay>(newAccSettings[i]));
 
                     //The m_accelerometerSettings.Clear() method causes the combo box on selection changed event handler to get called for
                     //each setting in the array. The event handler will get called again for each of these settings once it gets re-created.
                     //Because of this we need to subtract 2 * (the settings array size) from the settingsLoaded variable.
                     settingsLoaded -= (newAccSettings.size() * 2);
+                }
+                else
+                {
+                    //we need to update the raw settings vector regardless of whether or not the change cascades or not
+                    uint8_t* raw_settings = m_display_sensors[SensorType::ACCELEROMETER]->getRawSettings();
+                    SensorSettingOptions newOption = static_cast<SensorSettingOptions>(setting.GetUnderlyingOption(newOptionIndex));
+                    *(raw_settings + m_display_sensors[SensorType::ACCELEROMETER]->getRawSettingLocation(selectedSetting)) = m_display_sensors[SensorType::ACCELEROMETER]->getByte(newOption);
                 }
                 
                 break;

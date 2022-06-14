@@ -11,7 +11,6 @@ namespace winrt::Golf_Chip_WinRT::implementation
 {
     void MainPage::deviceSettingsMode_Click(Windows::Foundation::IInspectable const& /*sender*/, Windows::UI::Xaml::RoutedEventArgs const& /*args*/ )
     {
-        //Navigate back to the main page
         this->Frame().Navigate(xaml_typename<GolfChipSettings>());
     }
     void MainPage::freeSwingMode_Click(Windows::Foundation::IInspectable const& /*sender*/, Windows::UI::Xaml::RoutedEventArgs const& /*args*/)
@@ -28,6 +27,6 @@ namespace winrt::Golf_Chip_WinRT::implementation
     }
     void MainPage::calibrationMode_Click(Windows::Foundation::IInspectable const& /*sender*/, Windows::UI::Xaml::RoutedEventArgs const& /*args*/)
     {
-        calibrationMode().Content(box_value(L"Not yet implemented"));
+        this->Frame().Navigate(xaml_typename<CalibrationMode>());
     }
 }

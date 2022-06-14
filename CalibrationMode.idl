@@ -1,0 +1,13 @@
+namespace Golf_Chip_WinRT
+{
+    [default_interface]
+    runtimeclass CalibrationMode : Windows.UI.Xaml.Controls.Page
+    {
+        CalibrationMode();
+        
+        void AccelerometerButton_Click();
+        void GyroscopeButton_Click();
+        void MagnetometerButton_Click();
+        void MainPageButton_Click();
+    }
+}

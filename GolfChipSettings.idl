@@ -25,6 +25,7 @@ namespace Golf_Chip_WinRT
         void EnumerateButton_Click();
         void ConnectButton_Click();
         void DisconnectButton_Click();
+        void UpdateSettingsButton_Click();
 
         Boolean Not(Boolean value);
 

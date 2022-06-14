@@ -43,6 +43,7 @@ namespace winrt::Golf_Chip_WinRT::implementation
 
         void EnumerateButton_Click();
         fire_and_forget ConnectButton_Click();
+        void UpdateSettingsButton_Click();
         void DisconnectButton_Click();
         bool Not(bool value) { return !value; }
 
@@ -74,6 +75,7 @@ namespace winrt::Golf_Chip_WinRT::implementation
         void DisplaySearchMode();
         void DisplaySettingsMode();
         void SetSettingVectors();
+
 
         void StartBleDeviceWatcher();
         void StopBleDeviceWatcher();

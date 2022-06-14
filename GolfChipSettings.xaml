@@ -54,6 +54,7 @@
                 <Button x:Name="ConnectButton" Content="Connect" Click="{x:Bind ConnectButton_Click}" Margin="0,0,10,0"
                     IsEnabled="{x:Bind Not(ResultsListView.SelectedItem.(local:BluetoothLEDeviceDisplay.IsPaired)), FallbackValue=False, Mode=OneWay}" />
                 <Button x:Name="DisconnectButton" Content="Disconnect" Click="{x:Bind DisconnectButton_Click}" Margin="0,0,10,0" Visibility="Collapsed"/>
+                <Button x:Name="UpdateSettingsButton" Content="Apply Settings Changes" Click="{x:Bind UpdateSettingsButton_Click}" Margin="0,0,10,0" Visibility="Collapsed"/>
                 <Button x:Name="Button" Click="mainPageNavigate">Back to Main Page</Button>
             </StackPanel>
         </StackPanel>
