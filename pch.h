@@ -9,6 +9,7 @@
 #include <winrt/Windows.Devices.Bluetooth.h>
 #include <winrt/Windows.Devices.Bluetooth.GenericAttributeProfile.h>
 #include <winrt/Windows.Devices.Enumeration.h>
+#include <winrt/Windows.Graphics.Display.h>
 #include <winrt/Windows.Security.Cryptography.h>
 #include <winrt/Windows.Storage.Streams.h>
 #include <winrt/Windows.System.h>
@@ -30,3 +31,5 @@
 #include <d3d11_4.h>
 #include <d2d1_1.h>
 #include <windows.ui.xaml.media.dxinterop.h>
+#include <dwrite.h>
+#include <wincodec.h>

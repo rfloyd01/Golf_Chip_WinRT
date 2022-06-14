@@ -103,8 +103,8 @@ namespace DX
 		winrt::Windows::Foundation::Size                       m_d3dRenderTargetSize;
 		winrt::Windows::Foundation::Size                       m_outputSize;
 		winrt::Windows::Foundation::Size                       m_logicalSize;
-		winrt::Windows::Graphics::Display::DisplayOrientations nativeOrientation; //used for physical device rotation, I probably don't need
-		winrt::Windows::Graphics::Display::DisplayOrientations currentOrientation; //used for physical device rotation, I probably don't need
+		winrt::Windows::Graphics::Display::DisplayOrientations m_nativeOrientation; //used for physical device rotation, I probably don't need
+		winrt::Windows::Graphics::Display::DisplayOrientations m_currentOrientation; //used for physical device rotation, I probably don't need
 		float                                                  m_dpi;
 		float                                                  m_compositionScaleX;
 		float                                                  m_compositionScaleY;
